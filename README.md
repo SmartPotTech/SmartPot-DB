@@ -2,6 +2,8 @@
 
 ## Deployment
 
+[![Docker Image CI](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/docker-image.yml/badge.svg)](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/docker-image.yml)
+
 ### 1. Creación de la Imagen Docker
 
 Para crear la imagen Docker de la base de datos MongoDB personalizada, sigue estos pasos:
