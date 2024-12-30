@@ -2,7 +2,7 @@
 
 ## Deployment
 
-[![Docker Image CI](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/docker-image.yml/badge.svg)](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/docker-image.yml)
+[![Dockerization](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/dockerization.yml/badge.svg)](https://github.com/SmartPotTech/SmartPot-DB/actions/workflows/dockerization.yml)
 
 ### 1. Creación de la Imagen Docker
 
