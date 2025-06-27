@@ -14,11 +14,21 @@ db.createCollection('usuarios');
 db.usuarios.insertMany([
     {
         "_id": ObjectId("672811d1c78d172fd8a89775"),
-        "name": "Pedro",
+        "name": "Juan",
         "lastname": "Perez",
         "email": "juan.perez@example.com",
         "create_at": ISODate("2024-11-07T00:20:07.973Z"),
         "password": "$2a$12$4n181KR5etTwn1Qp1ka2je79lrxXYhVuUa3kqvQfQPDx1V2LcCTKu",
+        "role": "USER",
+        "_class": "smartpot.com.api.Models.Entity.User"
+    },
+    {
+        "_id": ObjectId("672811d1c78d172fd8a89776"),
+        "name": "Pedro",
+        "lastname": "Nel",
+        "email": "pedro@example.com",
+        "create_at": ISODate("2024-11-07T00:20:07.973Z"),
+        "password": "$2a$12$NPT9v8QoWxbbdoOuskROpOs48EJdgJAT4dmHu.bx5ReNF9kfW7cn.",
         "role": "USER",
         "_class": "smartpot.com.api.Models.Entity.User"
     }
