@@ -1,4 +1,4 @@
-db_admin = db_admin.getSiblingDB("admin");
+const db_admin = db.getSiblingDB("admin");
 
 const username = process.env.MONGO_INITDB_ROOT_USERNAME || "admin";
 const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "admin";
