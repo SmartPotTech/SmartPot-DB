@@ -95,7 +95,7 @@ db.notificaciones.insertMany([
 ]);
 
 db.createCollection('sesiones');
-db.sessions.insertMany([
+db.sesiones.insertMany([
     {
         "registration": ISODate("2023-11-05T12:30:00.000Z"),
         "user": ObjectId("672811d1c78d172fd8a89775"),
