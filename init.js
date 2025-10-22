@@ -1,3 +1,22 @@
+db = db.getSiblingDB("admin");
+
+const username = process.env.MONGO_INITDB_ROOT_USERNAME || "admin";
+const password = process.env.MONGO_INITDB_ROOT_PASSWORD || "admin";
+
+const userExists = db.getUser(username);
+
+if (!userExists) {
+    print(`Creando usuario ${username}...`);
+    db.createUser({
+        user: username,
+        pwd: password,
+        roles: [{ role: "root", db: "admin" }]
+    });
+} else {
+    print(`Usuario ${username} ya existe, actualizando contraseña...`);
+    db.updateUser(username, { pwd: password });
+}
+
 db = db.getSiblingDB('smartpot');
 
 db.createCollection('usuarios');
