@@ -49,7 +49,7 @@ db.cultivos.insertMany([
     {
         "_id": ObjectId("672ebd43e9227768a15b11df"),
         "status": "Excellent",
-        "type": "TOMATTO",
+        "type": "TOMATO",
         "user": ObjectId("672811d1c78d172fd8a89775"),
         "_class": "smartpot.com.api.Models.Entity.Crop"
     }
