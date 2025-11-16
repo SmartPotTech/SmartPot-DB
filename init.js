@@ -20,7 +20,7 @@ db.usuarios.insertMany([
         "create_at": ISODate("2024-11-07T00:20:07.973Z"),
         "password": "$2a$12$4n181KR5etTwn1Qp1ka2je79lrxXYhVuUa3kqvQfQPDx1V2LcCTKu",
         "role": "USER",
-        "_class": "app.smartpot.api.Models.Entity.User"
+        "_class": "app.smartpot.api.user.model.entity.User"
     },
     {
         "_id": ObjectId("672811d1c78d172fd8a89776"),
@@ -30,7 +30,7 @@ db.usuarios.insertMany([
         "create_at": ISODate("2024-11-07T00:20:07.973Z"),
         "password": "$2a$12$NPT9v8QoWxbbdoOuskROpOs48EJdgJAT4dmHu.bx5ReNF9kfW7cn.",
         "role": "USER",
-        "_class": "app.smartpot.api.Models.Entity.User"
+        "_class": "app.smartpot.api.user.model.entity.User"
     }
 ]);
 
@@ -41,7 +41,7 @@ db.cultivos.insertMany([
         "status": "Excellent",
         "type": "TOMATO",
         "user": ObjectId("672811d1c78d172fd8a89775"),
-        "_class": "app.smartpot.api.Models.Entity.Crop"
+        "_class": "app.smartpot.api.crops.models.entity.Crop"
     }
 ]);
 
@@ -62,7 +62,7 @@ db.comandos.insertMany([
         "status": "EXECUTED",
         "dateCreated": ISODate("2024-11-05T15:00:40.100Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.Command"
+        "_class": "app.smartpot.api.commands.model.entity.Command"
     },
     {
         "commandType": "ACTIVATE_WATER_PUMP",
@@ -70,14 +70,14 @@ db.comandos.insertMany([
         "dateCreated": ISODate("2024-11-05T15:00:40.100Z"),
         "response": "SUCCESSFUL",
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.Command"
+        "_class": "app.smartpot.api.commands.model.entity.Command"
     },
     {
         "commandType": "ACTIVATE_WATER_PUMP",
         "status": "PENDING",
         "dateCreated": ISODate("2024-11-06T04:17:57.398Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.Command"
+        "_class": "app.smartpot.api.commands.model.entity.Command"
     }
 ]);
 
@@ -88,7 +88,7 @@ db.notificaciones.insertMany([
         "message": "Estamos al pendiente de tu planta.",
         "type": "alerta",
         "date": ISODate("2024-11-06T04:13:08.902Z"),
-        "_class": "app.smartpot.api.Models.Entity.Notification",
+        "_class": "app.smartpot.api.notifications.models.entity.Notification",
         "user": ObjectId("672ebd43e9227768a15b11df")
     }
 ]);
@@ -98,7 +98,7 @@ db.sesiones.insertMany([
     {
         "registration": ISODate("2023-11-05T12:30:00.000Z"),
         "user": ObjectId("672811d1c78d172fd8a89775"),
-        "_class": "app.smartpot.api.Models.Entity.Session"
+        "_class": "app.smartpot.api.notifications.models.entity.Session"
     }
 ]);
 
@@ -115,7 +115,7 @@ db.registros.insertMany([
             "humidity": 10
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-01T12:00:00.000Z"),
@@ -128,7 +128,7 @@ db.registros.insertMany([
             "humidity": 11
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-02T00:00:00.000Z"),
@@ -141,7 +141,7 @@ db.registros.insertMany([
             "humidity": 12
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-02T12:00:00.000Z"),
@@ -154,7 +154,7 @@ db.registros.insertMany([
             "humidity": 13
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-03T00:00:00.000Z"),
@@ -167,7 +167,7 @@ db.registros.insertMany([
             "humidity": 14
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-03T12:00:00.000Z"),
@@ -180,7 +180,7 @@ db.registros.insertMany([
             "humidity": 15
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-04T00:00:00.000Z"),
@@ -193,7 +193,7 @@ db.registros.insertMany([
             "humidity": 16
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-04T12:00:00.000Z"),
@@ -206,7 +206,7 @@ db.registros.insertMany([
             "humidity": 17
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-05T00:00:00.000Z"),
@@ -219,7 +219,7 @@ db.registros.insertMany([
             "humidity": 18
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-05T12:00:00.000Z"),
@@ -232,7 +232,7 @@ db.registros.insertMany([
             "humidity": 19
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-06T00:00:00.000Z"),
@@ -245,7 +245,7 @@ db.registros.insertMany([
             "humidity": 20
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-06T12:00:00.000Z"),
@@ -258,7 +258,7 @@ db.registros.insertMany([
             "humidity": 21
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-07T00:00:00.000Z"),
@@ -271,7 +271,7 @@ db.registros.insertMany([
             "humidity": 22
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-07T12:00:00.000Z"),
@@ -284,7 +284,7 @@ db.registros.insertMany([
             "humidity": 23
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-08T00:00:00.000Z"),
@@ -297,7 +297,7 @@ db.registros.insertMany([
             "humidity": 24
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-08T12:00:00.000Z"),
@@ -310,7 +310,7 @@ db.registros.insertMany([
             "humidity": 25
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-09T00:00:00.000Z"),
@@ -323,7 +323,7 @@ db.registros.insertMany([
             "humidity": 26
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-09T12:00:00.000Z"),
@@ -336,7 +336,7 @@ db.registros.insertMany([
             "humidity": 27
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-10T00:00:00.000Z"),
@@ -349,7 +349,7 @@ db.registros.insertMany([
             "humidity": 28
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-10T12:00:00.000Z"),
@@ -362,7 +362,7 @@ db.registros.insertMany([
             "humidity": 29
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-11T00:00:00.000Z"),
@@ -375,7 +375,7 @@ db.registros.insertMany([
             "humidity": 30
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-11T12:00:00.000Z"),
@@ -388,7 +388,7 @@ db.registros.insertMany([
             "humidity": 31
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-12T00:00:00.000Z"),
@@ -401,7 +401,7 @@ db.registros.insertMany([
             "humidity": 32
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-12T12:00:00.000Z"),
@@ -414,7 +414,7 @@ db.registros.insertMany([
             "humidity": 33
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-13T00:00:00.000Z"),
@@ -427,7 +427,7 @@ db.registros.insertMany([
             "humidity": 34
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-13T12:00:00.000Z"),
@@ -440,7 +440,7 @@ db.registros.insertMany([
             "humidity": 35
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-14T00:00:00.000Z"),
@@ -453,7 +453,7 @@ db.registros.insertMany([
             "humidity": 36
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-14T12:00:00.000Z"),
@@ -466,7 +466,7 @@ db.registros.insertMany([
             "humidity": 37
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-15T00:00:00.000Z"),
@@ -479,7 +479,7 @@ db.registros.insertMany([
             "humidity": 38
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-15T12:00:00.000Z"),
@@ -492,7 +492,7 @@ db.registros.insertMany([
             "humidity": 39
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-16T00:00:00.000Z"),
@@ -505,7 +505,7 @@ db.registros.insertMany([
             "humidity": 40
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-16T12:00:00.000Z"),
@@ -518,7 +518,7 @@ db.registros.insertMany([
             "humidity": 41
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-17T00:00:00.000Z"),
@@ -531,7 +531,7 @@ db.registros.insertMany([
             "humidity": 42
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-17T12:00:00.000Z"),
@@ -544,7 +544,7 @@ db.registros.insertMany([
             "humidity": 43
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-18T00:00:00.000Z"),
@@ -557,7 +557,7 @@ db.registros.insertMany([
             "humidity": 44
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-18T12:00:00.000Z"),
@@ -570,7 +570,7 @@ db.registros.insertMany([
             "humidity": 45
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-19T00:00:00.000Z"),
@@ -583,7 +583,7 @@ db.registros.insertMany([
             "humidity": 46
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-19T12:00:00.000Z"),
@@ -596,7 +596,7 @@ db.registros.insertMany([
             "humidity": 47
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-20T00:00:00.000Z"),
@@ -609,7 +609,7 @@ db.registros.insertMany([
             "humidity": 48
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-20T12:00:00.000Z"),
@@ -622,7 +622,7 @@ db.registros.insertMany([
             "humidity": 49
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-21T00:00:00.000Z"),
@@ -635,7 +635,7 @@ db.registros.insertMany([
             "humidity": 50
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-21T12:00:00.000Z"),
@@ -648,7 +648,7 @@ db.registros.insertMany([
             "humidity": 51
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-22T00:00:00.000Z"),
@@ -661,7 +661,7 @@ db.registros.insertMany([
             "humidity": 52
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-22T12:00:00.000Z"),
@@ -674,7 +674,7 @@ db.registros.insertMany([
             "humidity": 53
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-23T00:00:00.000Z"),
@@ -687,7 +687,7 @@ db.registros.insertMany([
             "humidity": 54
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-23T12:00:00.000Z"),
@@ -700,7 +700,7 @@ db.registros.insertMany([
             "humidity": 55
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-24T00:00:00.000Z"),
@@ -713,7 +713,7 @@ db.registros.insertMany([
             "humidity": 56
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-24T12:00:00.000Z"),
@@ -726,7 +726,7 @@ db.registros.insertMany([
             "humidity": 57
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-25T00:00:00.000Z"),
@@ -739,7 +739,7 @@ db.registros.insertMany([
             "humidity": 58
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-26T00:00:00.000Z"),
@@ -752,7 +752,7 @@ db.registros.insertMany([
             "humidity": 60
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-27T00:00:00.000Z"),
@@ -765,7 +765,7 @@ db.registros.insertMany([
             "humidity": 62
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-28T00:00:00.000Z"),
@@ -778,7 +778,7 @@ db.registros.insertMany([
             "humidity": 64
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-29T00:00:00.000Z"),
@@ -791,7 +791,7 @@ db.registros.insertMany([
             "humidity": 66
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
         "date": new ISODate("2024-11-30T00:00:00.000Z"),
@@ -804,15 +804,5 @@ db.registros.insertMany([
             "humidity": 68
         },
         "crop": ObjectId("672ebd43e9227768a15b11df"),
-        "_class": "app.smartpot.api.Models.Entity.History"
+        "_class": "app.smartpot.api.records.model.entity.History"
     }]);
-
-db.createCollection("actuadores")
-db.actuadores.insertMany([
-  {
-    _id: ObjectId('6918e5919fb7e6b79f2a817b'),
-    crop: ObjectId('672ebd43e9227768a15b11df'),
-    type: 'HUMIDIFIER',
-    _class: 'app.smartpot.api.actuators.model.entity.Actuator'
-  }
-])
