@@ -48,8 +48,8 @@ db.cultivos.insertMany([
 db.createCollection("actuadores")
 db.actuadores.insertMany([
   {
-    "_id": ObjectId('6918e5919fb7e6b79f2a817b'),
-    "crop": ObjectId('672ebd43e9227768a15b11df'),
+    "_id": ObjectId("6918e5919fb7e6b79f2a817b"),
+    "crop": ObjectId("672ebd43e9227768a15b11df"),
     "type": "HUMIDIFIER",
     "_class": "app.smartpot.api.actuators.model.entity.Actuator"
   }
@@ -77,6 +77,14 @@ db.comandos.insertMany([
         "status": "PENDING",
         "dateCreated": ISODate("2024-11-06T04:17:57.398Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "_class": "app.smartpot.api.commands.model.entity.Command"
+    },
+    {
+        "commandType": "ACTIVATE",
+        "status": "PENDING",
+        "dateCreated": ISODate("2024-11-06T04:17:57.398Z"),
+        "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "actuator": ObjectId("6918e5919fb7e6b79f2a817b"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
     }
 ]);
