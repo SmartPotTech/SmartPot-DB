@@ -6,6 +6,3 @@ COPY init.js /docker-entrypoint-initdb.d/
 
 # Exponer el puerto de MongoDB
 EXPOSE 27017
-
-# Exponemos el puerto
-EXPOSE 27017
