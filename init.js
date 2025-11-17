@@ -27,7 +27,7 @@ db.usuarios.insertMany([
         "name": "Juan",
         "lastname": "Perez",
         "email": "juan.perez@example.com",
-        "create_at": ISODate("2024-11-07T00:20:07.973Z"),
+        "create_at": ISODate("2025-11-07T00:20:07.973Z"),
         "password": "$2a$12$4n181KR5etTwn1Qp1ka2je79lrxXYhVuUa3kqvQfQPDx1V2LcCTKu",
         "role": "USER",
         "_class": "app.smartpot.api.user.model.entity.User"
@@ -37,7 +37,7 @@ db.usuarios.insertMany([
         "name": "Pedro",
         "lastname": "Nel",
         "email": "pedro@example.com",
-        "create_at": ISODate("2024-11-07T00:20:07.973Z"),
+        "create_at": ISODate("2025-11-07T00:20:07.973Z"),
         "password": "$2a$12$NPT9v8QoWxbbdoOuskROpOs48EJdgJAT4dmHu.bx5ReNF9kfW7cn.",
         "role": "USER",
         "_class": "app.smartpot.api.user.model.entity.User"
@@ -70,14 +70,14 @@ db.comandos.insertMany([
     {
         "commandType": "ACTIVATE_WATER_PUMP",
         "status": "EXECUTED",
-        "dateCreated": ISODate("2024-11-05T15:00:40.100Z"),
+        "dateCreated": ISODate("2025-11-05T15:00:40.100Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
     },
     {
         "commandType": "ACTIVATE_WATER_PUMP",
         "status": "EXECUTED",
-        "dateCreated": ISODate("2024-11-05T15:00:40.100Z"),
+        "dateCreated": ISODate("2025-11-05T15:00:40.100Z"),
         "response": "SUCCESSFUL",
         "crop": ObjectId("672ebd43e9227768a15b11df"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
@@ -85,14 +85,14 @@ db.comandos.insertMany([
     {
         "commandType": "ACTIVATE_WATER_PUMP",
         "status": "PENDING",
-        "dateCreated": ISODate("2024-11-06T04:17:57.398Z"),
+        "dateCreated": ISODate("2025-11-06T04:17:57.398Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
     },
     {
         "commandType": "ACTIVATE",
         "status": "PENDING",
-        "dateCreated": ISODate("2024-11-06T04:17:57.398Z"),
+        "dateCreated": ISODate("2025-11-06T04:17:57.398Z"),
         "crop": ObjectId("672ebd43e9227768a15b11df"),
         "actuator": ObjectId("6918e5919fb7e6b79f2a817b"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
@@ -105,7 +105,7 @@ db.notificaciones.insertMany([
     {
         "message": "Estamos al pendiente de tu planta.",
         "type": "alerta",
-        "date": ISODate("2024-11-06T04:13:08.902Z"),
+        "date": ISODate("2025-11-06T04:13:08.902Z"),
         "_class": "app.smartpot.api.notifications.models.entity.Notification",
         "user": ObjectId("672ebd43e9227768a15b11df")
     }
@@ -123,7 +123,7 @@ db.sesiones.insertMany([
 db.createCollection('registros');
 db.registros.insertMany([
     {
-        "date": new ISODate("2024-11-01T00:00:00.000Z"),
+        "date": new ISODate("2025-11-01T00:00:00.000Z"),
         "measures": {
             "atmosphere": 18,
             "brightness": 1270,
@@ -136,7 +136,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-01T12:00:00.000Z"),
+        "date": new ISODate("2025-11-01T12:00:00.000Z"),
         "measures": {
             "atmosphere": 18.2,
             "brightness": 1272,
@@ -149,7 +149,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-02T00:00:00.000Z"),
+        "date": new ISODate("2025-11-02T00:00:00.000Z"),
         "measures": {
             "atmosphere": 18.5,
             "brightness": 1273,
@@ -162,7 +162,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-02T12:00:00.000Z"),
+        "date": new ISODate("2025-11-02T12:00:00.000Z"),
         "measures": {
             "atmosphere": 19,
             "brightness": 1275,
@@ -175,7 +175,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-03T00:00:00.000Z"),
+        "date": new ISODate("2025-11-03T00:00:00.000Z"),
         "measures": {
             "atmosphere": 19,
             "brightness": 1275,
@@ -188,7 +188,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-03T12:00:00.000Z"),
+        "date": new ISODate("2025-11-03T12:00:00.000Z"),
         "measures": {
             "atmosphere": 19.5,
             "brightness": 1277,
@@ -201,7 +201,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-04T00:00:00.000Z"),
+        "date": new ISODate("2025-11-04T00:00:00.000Z"),
         "measures": {
             "atmosphere": 19.5,
             "brightness": 1278,
@@ -214,7 +214,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-04T12:00:00.000Z"),
+        "date": new ISODate("2025-11-04T12:00:00.000Z"),
         "measures": {
             "atmosphere": 20,
             "brightness": 1280,
@@ -227,7 +227,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-05T00:00:00.000Z"),
+        "date": new ISODate("2025-11-05T00:00:00.000Z"),
         "measures": {
             "atmosphere": 20,
             "brightness": 1280,
@@ -240,7 +240,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-05T12:00:00.000Z"),
+        "date": new ISODate("2025-11-05T12:00:00.000Z"),
         "measures": {
             "atmosphere": 20.6,
             "brightness": 1283,
@@ -253,7 +253,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-06T00:00:00.000Z"),
+        "date": new ISODate("2025-11-06T00:00:00.000Z"),
         "measures": {
             "atmosphere": 20.5,
             "brightness": 1283,
@@ -266,7 +266,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-06T12:00:00.000Z"),
+        "date": new ISODate("2025-11-06T12:00:00.000Z"),
         "measures": {
             "atmosphere": 21,
             "brightness": 1286,
@@ -279,7 +279,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-07T00:00:00.000Z"),
+        "date": new ISODate("2025-11-07T00:00:00.000Z"),
         "measures": {
             "atmosphere": 21,
             "brightness": 1285,
@@ -292,7 +292,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-07T12:00:00.000Z"),
+        "date": new ISODate("2025-11-07T12:00:00.000Z"),
         "measures": {
             "atmosphere": 21.5,
             "brightness": 1289,
@@ -305,7 +305,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-08T00:00:00.000Z"),
+        "date": new ISODate("2025-11-08T00:00:00.000Z"),
         "measures": {
             "atmosphere": 21.5,
             "brightness": 1288,
@@ -318,7 +318,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-08T12:00:00.000Z"),
+        "date": new ISODate("2025-11-08T12:00:00.000Z"),
         "measures": {
             "atmosphere": 22,
             "brightness": 1292,
@@ -331,7 +331,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-09T00:00:00.000Z"),
+        "date": new ISODate("2025-11-09T00:00:00.000Z"),
         "measures": {
             "atmosphere": 22,
             "brightness": 1290,
@@ -344,7 +344,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-09T12:00:00.000Z"),
+        "date": new ISODate("2025-11-09T12:00:00.000Z"),
         "measures": {
             "atmosphere": 22.5,
             "brightness": 1295,
@@ -357,7 +357,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-10T00:00:00.000Z"),
+        "date": new ISODate("2025-11-10T00:00:00.000Z"),
         "measures": {
             "atmosphere": 22.5,
             "brightness": 1293,
@@ -370,7 +370,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-10T12:00:00.000Z"),
+        "date": new ISODate("2025-11-10T12:00:00.000Z"),
         "measures": {
             "atmosphere": 23,
             "brightness": 1297,
@@ -383,7 +383,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-11T00:00:00.000Z"),
+        "date": new ISODate("2025-11-11T00:00:00.000Z"),
         "measures": {
             "atmosphere": 23,
             "brightness": 1295,
@@ -396,7 +396,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-11T12:00:00.000Z"),
+        "date": new ISODate("2025-11-11T12:00:00.000Z"),
         "measures": {
             "atmosphere": 23.5,
             "brightness": 1300,
@@ -409,7 +409,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-12T00:00:00.000Z"),
+        "date": new ISODate("2025-11-12T00:00:00.000Z"),
         "measures": {
             "atmosphere": 23.5,
             "brightness": 1298,
@@ -422,7 +422,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-12T12:00:00.000Z"),
+        "date": new ISODate("2025-11-12T12:00:00.000Z"),
         "measures": {
             "atmosphere": 24,
             "brightness": 1303,
@@ -435,7 +435,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-13T00:00:00.000Z"),
+        "date": new ISODate("2025-11-13T00:00:00.000Z"),
         "measures": {
             "atmosphere": 24,
             "brightness": 1300,
@@ -448,7 +448,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-13T12:00:00.000Z"),
+        "date": new ISODate("2025-11-13T12:00:00.000Z"),
         "measures": {
             "atmosphere": 24.5,
             "brightness": 1306,
@@ -461,7 +461,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-14T00:00:00.000Z"),
+        "date": new ISODate("2025-11-14T00:00:00.000Z"),
         "measures": {
             "atmosphere": 24.5,
             "brightness": 1303,
@@ -474,7 +474,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-14T12:00:00.000Z"),
+        "date": new ISODate("2025-11-14T12:00:00.000Z"),
         "measures": {
             "atmosphere": 25,
             "brightness": 1308,
@@ -487,7 +487,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-15T00:00:00.000Z"),
+        "date": new ISODate("2025-11-15T00:00:00.000Z"),
         "measures": {
             "atmosphere": 25,
             "brightness": 1305,
@@ -500,7 +500,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-15T12:00:00.000Z"),
+        "date": new ISODate("2025-11-15T12:00:00.000Z"),
         "measures": {
             "atmosphere": 25.5,
             "brightness": 1311,
@@ -513,7 +513,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-16T00:00:00.000Z"),
+        "date": new ISODate("2025-11-16T00:00:00.000Z"),
         "measures": {
             "atmosphere": 25.5,
             "brightness": 1308,
@@ -526,7 +526,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-16T12:00:00.000Z"),
+        "date": new ISODate("2025-11-16T12:00:00.000Z"),
         "measures": {
             "atmosphere": 26,
             "brightness": 1313,
@@ -539,7 +539,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-17T00:00:00.000Z"),
+        "date": new ISODate("2025-11-17T00:00:00.000Z"),
         "measures": {
             "atmosphere": 26,
             "brightness": 1310,
@@ -552,7 +552,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-17T12:00:00.000Z"),
+        "date": new ISODate("2025-11-17T12:00:00.000Z"),
         "measures": {
             "atmosphere": 26.5,
             "brightness": 1316,
@@ -565,7 +565,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-18T00:00:00.000Z"),
+        "date": new ISODate("2025-11-18T00:00:00.000Z"),
         "measures": {
             "atmosphere": 26.5,
             "brightness": 1313,
@@ -578,7 +578,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-18T12:00:00.000Z"),
+        "date": new ISODate("2025-11-18T12:00:00.000Z"),
         "measures": {
             "atmosphere": 27,
             "brightness": 1318,
@@ -591,7 +591,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-19T00:00:00.000Z"),
+        "date": new ISODate("2025-11-19T00:00:00.000Z"),
         "measures": {
             "atmosphere": 27,
             "brightness": 1315,
@@ -604,7 +604,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-19T12:00:00.000Z"),
+        "date": new ISODate("2025-11-19T12:00:00.000Z"),
         "measures": {
             "atmosphere": 27.5,
             "brightness": 1320,
@@ -617,7 +617,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-20T00:00:00.000Z"),
+        "date": new ISODate("2025-11-20T00:00:00.000Z"),
         "measures": {
             "atmosphere": 27.5,
             "brightness": 1318,
@@ -630,7 +630,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-20T12:00:00.000Z"),
+        "date": new ISODate("2025-11-20T12:00:00.000Z"),
         "measures": {
             "atmosphere": 28,
             "brightness": 1323,
@@ -643,7 +643,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-21T00:00:00.000Z"),
+        "date": new ISODate("2025-11-21T00:00:00.000Z"),
         "measures": {
             "atmosphere": 28,
             "brightness": 1320,
@@ -656,7 +656,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-21T12:00:00.000Z"),
+        "date": new ISODate("2025-11-21T12:00:00.000Z"),
         "measures": {
             "atmosphere": 28.5,
             "brightness": 1325,
@@ -669,7 +669,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-22T00:00:00.000Z"),
+        "date": new ISODate("2025-11-22T00:00:00.000Z"),
         "measures": {
             "atmosphere": 28.5,
             "brightness": 1323,
@@ -682,7 +682,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-22T12:00:00.000Z"),
+        "date": new ISODate("2025-11-22T12:00:00.000Z"),
         "measures": {
             "atmosphere": 29,
             "brightness": 1328,
@@ -695,7 +695,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-23T00:00:00.000Z"),
+        "date": new ISODate("2025-11-23T00:00:00.000Z"),
         "measures": {
             "atmosphere": 29,
             "brightness": 1325,
@@ -708,7 +708,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-23T12:00:00.000Z"),
+        "date": new ISODate("2025-11-23T12:00:00.000Z"),
         "measures": {
             "atmosphere": 29.5,
             "brightness": 1330,
@@ -721,7 +721,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-24T00:00:00.000Z"),
+        "date": new ISODate("2025-11-24T00:00:00.000Z"),
         "measures": {
             "atmosphere": 29.5,
             "brightness": 1328,
@@ -734,7 +734,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-24T12:00:00.000Z"),
+        "date": new ISODate("2025-11-24T12:00:00.000Z"),
         "measures": {
             "atmosphere": 30,
             "brightness": 1333,
@@ -747,7 +747,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-25T00:00:00.000Z"),
+        "date": new ISODate("2025-11-25T00:00:00.000Z"),
         "measures": {
             "atmosphere": 30,
             "brightness": 1330,
@@ -760,7 +760,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-26T00:00:00.000Z"),
+        "date": new ISODate("2025-11-26T00:00:00.000Z"),
         "measures": {
             "atmosphere": 30.5,
             "brightness": 1333,
@@ -773,7 +773,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-27T00:00:00.000Z"),
+        "date": new ISODate("2025-11-27T00:00:00.000Z"),
         "measures": {
             "atmosphere": 31,
             "brightness": 1335,
@@ -786,7 +786,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-28T00:00:00.000Z"),
+        "date": new ISODate("2025-11-28T00:00:00.000Z"),
         "measures": {
             "atmosphere": 31.5,
             "brightness": 1338,
@@ -799,7 +799,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-29T00:00:00.000Z"),
+        "date": new ISODate("2025-11-29T00:00:00.000Z"),
         "measures": {
             "atmosphere": 32,
             "brightness": 1340,
@@ -812,7 +812,7 @@ db.registros.insertMany([
         "_class": "app.smartpot.api.records.model.entity.History"
     },
     {
-        "date": new ISODate("2024-11-30T00:00:00.000Z"),
+        "date": new ISODate("2025-11-30T00:00:00.000Z"),
         "measures": {
             "atmosphere": 32.5,
             "brightness": 1343,
