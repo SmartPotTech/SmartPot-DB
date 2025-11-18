@@ -62,6 +62,18 @@ db.actuadores.insertMany([
     "crop": ObjectId("672ebd43e9227768a15b11df"),
     "type": "HUMIDIFIER",
     "_class": "app.smartpot.api.actuators.model.entity.Actuator"
+  },
+  {
+    "_id": ObjectId("691c063677bd49e238fb35c7"),
+    "crop": ObjectId("672ebd43e9227768a15b11df"),
+    "type": "WATER_PUMP",
+    "_class": "app.smartpot.api.actuators.model.entity.Actuator"
+  },
+  {
+    "_id": ObjectId("691c064e77bd49e238fb35c8"),
+    "crop": ObjectId("672ebd43e9227768a15b11df"),
+    "type": "UV_LIGHT",
+    "_class": "app.smartpot.api.actuators.model.entity.Actuator"
   }
 ])
 
