@@ -108,6 +108,14 @@ db.comandos.insertMany([
         "crop": ObjectId("672ebd43e9227768a15b11df"),
         "actuator": ObjectId("6918e5919fb7e6b79f2a817b"),
         "_class": "app.smartpot.api.commands.model.entity.Command"
+    },
+    {
+        "commandType": "TURN_ON_UV_LIGHT",
+        "status": "PENDING",
+        "dateCreated": ISODate("2025-11-18T00:00:00.000Z"),
+        "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "actuator": ObjectId("691c064e77bd49e238fb35c8"),
+        "_class": "app.smartpot.api.commands.model.entity.Command"
     }
 ]);
 
