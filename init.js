@@ -11,11 +11,11 @@ if (!userExists) {
     db_admin.createUser({
         user: username,
         pwd: password,
-        roles: [{ role: "root", db: "admin" }]
+        roles: [{role: "root", db: "admin"}]
     });
 } else {
     print(`Usuario ${username} ya existe, actualizando contraseña...`);
-    db_admin.updateUser(username, { pwd: password });
+    db_admin.updateUser(username, {pwd: password});
 }
 
 db = db.getSiblingDB(database);
@@ -57,24 +57,24 @@ db.cultivos.insertMany([
 
 db.createCollection("actuadores")
 db.actuadores.insertMany([
-  {
-    "_id": ObjectId("6918e5919fb7e6b79f2a817b"),
-    "crop": ObjectId("672ebd43e9227768a15b11df"),
-    "type": "HUMIDIFIER",
-    "_class": "app.smartpot.api.actuators.model.entity.Actuator"
-  },
-  {
-    "_id": ObjectId("691c063677bd49e238fb35c7"),
-    "crop": ObjectId("672ebd43e9227768a15b11df"),
-    "type": "WATER_PUMP",
-    "_class": "app.smartpot.api.actuators.model.entity.Actuator"
-  },
-  {
-    "_id": ObjectId("691c064e77bd49e238fb35c8"),
-    "crop": ObjectId("672ebd43e9227768a15b11df"),
-    "type": "UV_LIGHT",
-    "_class": "app.smartpot.api.actuators.model.entity.Actuator"
-  }
+    {
+        "_id": ObjectId("6918e5919fb7e6b79f2a817b"),
+        "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "type": "HUMIDIFIER",
+        "_class": "app.smartpot.api.actuators.model.entity.Actuator"
+    },
+    {
+        "_id": ObjectId("691c063677bd49e238fb35c7"),
+        "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "type": "WATER_PUMP",
+        "_class": "app.smartpot.api.actuators.model.entity.Actuator"
+    },
+    {
+        "_id": ObjectId("691c064e77bd49e238fb35c8"),
+        "crop": ObjectId("672ebd43e9227768a15b11df"),
+        "type": "UV_LIGHT",
+        "_class": "app.smartpot.api.actuators.model.entity.Actuator"
+    }
 ])
 
 db.createCollection('comandos');
