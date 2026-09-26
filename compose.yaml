@@ -1,0 +1,24 @@
+name: smartpot-db
+
+services:
+  db-smartpot:
+    build: .
+    image: ghcr.io/smartpottech/smartpot-db:latest
+    container_name: smartpot-db
+    restart: unless-stopped
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - db_data:/data/db
+    tmpfs:
+      - /tmp
+
+volumes:
+  db_data:
