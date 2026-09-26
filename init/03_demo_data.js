@@ -53,6 +53,7 @@ if ((process.env.SMARTPOT_SEED_DEMO || "false").toLowerCase() !== "true") {
         }
 
         // 48 horas de lecturas cada 10 minutos con ciclo día/noche y ruido suave.
+        // El ciclo alcanza su máximo a las 17:00 UTC, mediodía en Colombia (UTC−5).
         const readings = [];
         for (let step = 288; step >= 1; step--) {
             const measuredAt = new Date(now.getTime() - step * 10 * 60 * 1000);
