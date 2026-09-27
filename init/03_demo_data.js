@@ -98,7 +98,7 @@ if ((process.env.SMARTPOT_SEED_DEMO || "false").toLowerCase() !== "true") {
     target.notifications.insertMany([
         {
             userId: demoUser, type: "INFO", title: "¡Bienvenido a SmartPot!",
-            message: "Crea tu primer cultivo y conecta tu maceta para empezar a monitorearla.",
+            message: "Crea tu primer cultivo, real o virtual, para empezar a monitorearlo.",
             read: true, createdAt: hoursAgo(72)
         },
         {
