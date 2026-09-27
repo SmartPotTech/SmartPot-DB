@@ -10,6 +10,9 @@ ENV MONGO_INITDB_DATABASE=smartpot \
     SMARTPOT_DB_USERNAME=smartpot \
     SMARTPOT_SEED_DEMO=false
 
+# Los esquemas los comparten el inicio de una base nueva y la migración de una base existente.
+COPY --chown=999:999 schemas/ /opt/smartpot/schemas/
+COPY --chown=999:999 scripts/migrate.js /opt/smartpot/migrate.js
 COPY --chown=999:999 init/ /docker-entrypoint-initdb.d/
 
 USER 999:999
