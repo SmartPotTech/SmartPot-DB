@@ -49,9 +49,9 @@ check "el validador rechaza un vínculo de canal incompleto" \
   "$(app 'try { db.channel_links.insertOne({type: "TELEGRAM"}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
 check "el validador acepta un vínculo de Telegram completo" \
   "$(app 'db.channel_links.insertOne({userId: new ObjectId(), type: "TELEGRAM", address: "123456789", enabled: true, events: ["ALERT", "DEVICE"], linkedAt: new Date(), failures: NumberInt(0)}).acknowledged')" "true"
-check "el validador rechaza una maceta virtual con un modo desconocido" \
+check "el validador rechaza una simulación con un modo desconocido" \
   "$(app 'try { db.virtual_devices.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), mode: "RANDOM", intervalSeconds: NumberInt(30), createdAt: new Date(), updatedAt: new Date()}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
-check "el validador acepta una maceta virtual con clima" \
+check "el validador acepta una simulación con clima" \
   "$(app 'db.virtual_devices.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), mode: "WEATHER", location: {name: "Bogota", latitude: 4.711, longitude: -74.0721}, intervalSeconds: NumberInt(30), createdAt: new Date(), updatedAt: new Date()}).acknowledged')" "true"
 
 # Una base creada antes de los validadores nuevos: una colección sin validador y otra con un documento antiguo.
