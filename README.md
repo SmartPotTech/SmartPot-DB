@@ -7,7 +7,7 @@
 
 ## Descripción
 
-SmartPot-DB es la base de datos de **SmartPot**: una imagen de **MongoDB 8.0** que en su primer arranque crea el usuario de la aplicación, las siete colecciones con **validación `$jsonSchema`** y, si se pide, una cuenta de demostración con dos cultivos y 48 horas de lecturas. [SmartPot-API](https://github.com/SmartPotTech/SmartPot-API) se conecta con el usuario de la aplicación, que solo tiene `readWrite` sobre su base, y crea los índices al arrancar.
+SmartPot-DB es la base de datos de **SmartPot**: una imagen de **MongoDB 8.0** que en su primer arranque crea el usuario de la aplicación, las nueve colecciones con **validación `$jsonSchema`** y, si se pide, una cuenta de demostración con dos cultivos y 48 horas de lecturas. [SmartPot-API](https://github.com/SmartPotTech/SmartPot-API) se conecta con el usuario de la aplicación, que solo tiene `readWrite` sobre su base, y crea los índices al arrancar.
 
 ## Estructura del Proyecto
 
@@ -21,10 +21,14 @@ SmartPot-DB/
 │       └── deploy.yml          # Pide el despliegue al workflow central de SmartPotTech/.github
 ├── init/
 │   ├── 01_app_user.js          # Usuario de la aplicación con readWrite sobre su base
-│   ├── 02_collections.js       # Colecciones con validación
+│   ├── 02_collections.js       # Aplica los esquemas en una base nueva
 │   └── 03_demo_data.js         # Datos demo si SMARTPOT_SEED_DEMO=true
+├── schemas/
+│   └── collections.js          # Esquemas de las nueve colecciones y su aplicación idempotente
+├── scripts/
+│   └── migrate.js              # Aplica los esquemas a una base existente
 ├── tests/
-│   └── validate.sh             # Colecciones, validadores, permisos y demo
+│   └── validate.sh             # Colecciones, validadores, permisos, migración y demo
 ├── compose.yaml                # Base local endurecida con volumen persistente
 ├── Dockerfile                  # mongo:8.0 sin privilegios + scripts de inicio
 └── .env.example
@@ -54,10 +58,20 @@ erDiagram
 | `commands` | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados `PENDING`, `SENT`, `EXECUTED`, `FAILED`, `EXPIRED`; TTL de 180 días |
 | `notifications` | `userId`, `type`, `title`, `message`, `read`, `createdAt` | TTL de 90 días |
 | `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt` | Solo el SHA-256 del token; se borra al vencer |
+| `channel_links` | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures` | Canal `TELEGRAM`; `address` es el id del chat; `events` sin repetidos entre los tipos de notificación |
+| `virtual_devices` | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt` | Modo `AUTO`, `MANUAL` o `WEATHER`; intervalo de 10 a 300 s; `location` con nombre, latitud y longitud válidas |
 
-`channel_links` (vínculos de Telegram) y `virtual_devices` (macetas virtuales) no las crea esta imagen: las crea SmartPot-API al usarlas por primera vez, con sus índices únicos (un vínculo por cuenta y canal, un chat por canal y una maceta virtual por cultivo) y sin validador `$jsonSchema`; la API valida sus datos.
+Los identificadores entre colecciones se guardan como `ObjectId`. Los campos de más (como `_class`) se permiten; los tipos y valores de los campos listados no. Los índices, incluidos los únicos de `channel_links` y `virtual_devices`, los crea la API al arrancar.
 
-Los identificadores entre colecciones se guardan como `ObjectId`. Los campos de más (como `_class`) se permiten; los tipos y valores de los campos listados no.
+## Migración
+
+Los scripts de `init/` solo corren con el volumen vacío, así que una base existente no recibe los esquemas nuevos por sí sola. `schemas/collections.js` es la única definición y se aplica de forma idempotente: crea la colección que falte y, a la que exista, le pone su validador con `collMod`. Después de actualizar la imagen:
+
+```bash
+docker exec smartpot-db mongosh --quiet /opt/smartpot/migrate.js
+```
+
+El script se autentica con la cuenta root del contenedor, leída del entorno para que la clave no aparezca en la línea de comandos, e informa cada colección. Si una colección tiene documentos antiguos que no cumplen el esquema, su validación queda en `moderate`: los documentos nuevos y los que ya cumplen se validan, y los antiguos se pueden seguir actualizando hasta corregirlos. Sin documentos inválidos queda en `strict`.
 
 ## Datos de Demostración
 
@@ -102,6 +116,8 @@ mongodb://smartpot:<SMARTPOT_DB_PASSWORD>@localhost:27017/smartpot?authSource=sm
 docker build -t smartpot-db:ci .
 sh tests/validate.sh smartpot-db:ci true
 ```
+
+Además de colecciones, permisos y datos demo, la prueba simula una base anterior (una colección sin validador y otra con un documento antiguo), corre la migración y comprueba que es idempotente.
 
 ## Imagen publicada
 
