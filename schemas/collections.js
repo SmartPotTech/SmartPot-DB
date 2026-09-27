@@ -5,6 +5,10 @@
 const CROP_TYPES = ["TOMATO", "LETTUCE", "STRAWBERRY", "BASIL", "SPINACH", "PEPPER"];
 const ACTUATOR_TYPES = ["WATER_PUMP", "UV_LIGHT", "FAN", "HUMIDIFIER", "NUTRIENT_DOSER", "PH_DOSER"];
 const NOTIFICATION_TYPES = ["INFO", "ALERT", "COMMAND", "DEVICE", "AI"];
+// Real (un dispositivo con firmware, físico o en Wokwi) o virtual (lo simula SmartPot); no cambia tras crearlo.
+const CROP_KINDS = ["REAL", "VIRTUAL"];
+// Forma del sistema hidropónico: maceta, tubos NFT, torre vertical o balsa flotante.
+const CROP_FORMS = ["POT", "NFT", "TOWER", "RAFT"];
 
 globalThis.SMARTPOT_SCHEMAS = {
     users: {
@@ -22,6 +26,8 @@ globalThis.SMARTPOT_SCHEMAS = {
             ownerId: {bsonType: "objectId"},
             name: {bsonType: "string", minLength: 1, maxLength: 60},
             type: {enum: CROP_TYPES},
+            kind: {enum: CROP_KINDS},
+            form: {enum: CROP_FORMS},
             automationEnabled: {bsonType: "bool"},
             createdAt: {bsonType: "date"}
         }
@@ -90,7 +96,7 @@ globalThis.SMARTPOT_SCHEMAS = {
             failures: {bsonType: "int", minimum: 0}
         }
     },
-    // Maceta virtual de un cultivo: el simulador la recrea a partir de este documento.
+    // Simulación de un cultivo virtual: el simulador la recrea a partir de este documento; active es false en pausa.
     virtual_devices: {
         required: ["cropId", "ownerId", "mode", "intervalSeconds", "createdAt", "updatedAt"],
         properties: {
@@ -108,6 +114,7 @@ globalThis.SMARTPOT_SCHEMAS = {
                 }
             },
             intervalSeconds: {bsonType: "int", minimum: 10, maximum: 300},
+            active: {bsonType: "bool"},
             createdAt: {bsonType: "date"},
             updatedAt: {bsonType: "date"}
         }
