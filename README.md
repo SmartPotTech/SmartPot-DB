@@ -52,14 +52,14 @@ erDiagram
 | Colección | Campos obligatorios | Reglas |
 | --- | --- | --- |
 | `users` | `email`, `passwordHash`, `role`, `createdAt` | Hash BCrypt; rol `USER` o `ADMIN` |
-| `crops` | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt` | Seis especies; `device` guarda la clave cifrada del dispositivo |
+| `crops` | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt` | Seis especies; `kind` `REAL` o `VIRTUAL` (no cambia tras crearlo); `form` `POT`, `NFT`, `TOWER` o `RAFT`; `device` guarda la clave cifrada del dispositivo |
 | `readings` | `cropId`, `measuredAt`, `measures` | Origen `MQTT` o `HTTP`; la API las borra al año (TTL) |
 | `actuators` | `cropId`, `type`, `active` | Uno por tipo en cada cultivo |
 | `commands` | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados `PENDING`, `SENT`, `EXECUTED`, `FAILED`, `EXPIRED`; TTL de 180 días |
 | `notifications` | `userId`, `type`, `title`, `message`, `read`, `createdAt` | TTL de 90 días |
 | `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt` | Solo el SHA-256 del token; se borra al vencer |
 | `channel_links` | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures` | Canal `TELEGRAM`; `address` es el id del chat; `events` sin repetidos entre los tipos de notificación |
-| `virtual_devices` | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt` | Modo `AUTO`, `MANUAL` o `WEATHER`; intervalo de 10 a 300 s; `location` con nombre, latitud y longitud válidas |
+| `virtual_devices` | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt` | Simulación de un cultivo virtual; modo `AUTO`, `MANUAL` o `WEATHER`; intervalo de 10 a 300 s; `active` en `false` mientras está en pausa; `location` con nombre, latitud y longitud válidas |
 
 Los identificadores entre colecciones se guardan como `ObjectId`. Los campos de más (como `_class`) se permiten; los tipos y valores de los campos listados no. Los índices, incluidos los únicos de `channel_links` y `virtual_devices`, los crea la API al arrancar.
 
@@ -77,10 +77,12 @@ El script se autentica con la cuenta root del contenedor, leída del entorno par
 
 Con `SMARTPOT_SEED_DEMO=true` se carga la cuenta **`demo@smartpot.app`** con contraseña **`SmartPot2026`**:
 
-| Cultivo | Tipo | Contenido |
-| --- | --- | --- |
-| Lechugas del balcón | `LETTUCE` | Modo automático activo, 288 lecturas, un riego del agente y otro manual |
-| Tomates cherry | `TOMATO` | 288 lecturas con ciclo día/noche |
+| Cultivo | Especie | Forma | Contenido |
+| --- | --- | --- | --- |
+| Lechugas del balcón | `LETTUCE` | Tubos NFT | Modo automático activo, 288 lecturas, un riego del agente y otro manual |
+| Tomates cherry | `TOMATO` | Maceta | 288 lecturas con ciclo día/noche |
+
+Los dos son cultivos **reales**: publican por MQTT con su propia clave, igual que un ESP32 o su simulación en Wokwi.
 
 Las claves de dispositivo de la demo están cifradas con la clave AES pública del entorno de demostración, así el simulador de SmartPot-DataGenerator puede conectarse sin configuración.
 
