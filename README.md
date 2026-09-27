@@ -17,8 +17,8 @@ SmartPot-DB/
 │   ├── dependabot.yml          # Actualización de la imagen base y de las Actions
 │   └── workflows/
 │       ├── ci.yml              # Construye la imagen y valida con y sin datos demo
-│       ├── packaging.yml       # Publica la imagen en GHCR (con SBOM y provenance)
-│       └── deploy.yml          # Despliega la app completa tras publicar
+│       ├── packaging.yml       # Publica la imagen en GHCR con SBOM y procedencia (y en Docker Hub con credenciales)
+│       └── deploy.yml          # Pide el despliegue al workflow central de SmartPotTech/.github
 ├── init/
 │   ├── 01_app_user.js          # Usuario de la aplicación con readWrite sobre su base
 │   ├── 02_collections.js       # Colecciones con validación
@@ -41,6 +41,8 @@ erDiagram
   CROPS ||--o{ ACTUATORS : has
   CROPS ||--o{ COMMANDS : receives
   ACTUATORS ||--o{ COMMANDS : executes
+  USERS ||--o{ CHANNEL_LINKS : links
+  CROPS ||--o| VIRTUAL_DEVICES : simulates
 ```
 
 | Colección | Campos obligatorios | Reglas |
@@ -52,6 +54,8 @@ erDiagram
 | `commands` | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados `PENDING`, `SENT`, `EXECUTED`, `FAILED`, `EXPIRED`; TTL de 180 días |
 | `notifications` | `userId`, `type`, `title`, `message`, `read`, `createdAt` | TTL de 90 días |
 | `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt` | Solo el SHA-256 del token; se borra al vencer |
+
+`channel_links` (vínculos de Telegram) y `virtual_devices` (macetas virtuales) no las crea esta imagen: las crea SmartPot-API al usarlas por primera vez, con sus índices únicos (un vínculo por cuenta y canal, un chat por canal y una maceta virtual por cultivo) y sin validador `$jsonSchema`; la API valida sus datos.
 
 Los identificadores entre colecciones se guardan como `ObjectId`. Los campos de más (como `_class`) se permiten; los tipos y valores de los campos listados no.
 
@@ -106,6 +110,15 @@ docker pull ghcr.io/smartpottech/smartpot-db:latest
 ```
 
 La imagen corre como el usuario `999` y admite sistema de archivos de solo lectura con `tmpfs` en `/tmp`.
+
+Cada cambio en `main` pasa por el CI, publica la imagen en GHCR (y en Docker Hub como réplica cuando el repositorio tiene credenciales) y pide el despliegue al workflow central de [SmartPotTech/.github](https://github.com/SmartPotTech/.github), que actualiza producción de a uno y verifica `/health`.
+
+## Documentación
+
+La base guarda todo lo que la plataforma necesita recordar. La [documentación técnica](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Technical_Documentation.md) resume cada colección con sus índices, vencimientos y validación. Los superdiagramas muestran la plataforma completa en una sola imagen ampliable:
+
+- [Linaje de los datos](https://github.com/SmartPotTech/.github/blob/main/docs/images/superdiagrams/SmartPot_Super_04_Data_Lineage.svg): de dónde sale cada dato, en qué colección queda y quién lo usa
+- [Modelo de dominio](https://github.com/SmartPotTech/.github/blob/main/docs/images/superdiagrams/SmartPot_Super_06_Domain_Model.svg): las entidades de la API que se guardan en cada colección
 
 ## Licencia
 
