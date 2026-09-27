@@ -21,6 +21,11 @@ docker run -d --name "$NAME" \
 
 app() { docker exec "$NAME" mongosh --quiet -u smartpot -p "$APP_PASS" --authenticationDatabase smartpot smartpot --eval "$1"; }
 
+# Los scripts de init corren en un mongod temporal que después se reinicia: se espera a que termine.
+for _ in $(seq 1 90); do
+  docker logs "$NAME" 2>&1 | grep -q "MongoDB init process complete" && break
+  sleep 2
+done
 for _ in $(seq 1 60); do
   app 'db.runCommand({ping: 1}).ok' >/dev/null 2>&1 && break
   sleep 2
