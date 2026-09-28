@@ -37,7 +37,7 @@ done
 fail=0
 check() { if [ "$2" = "$3" ]; then echo "OK   $1"; else echo "FAIL $1 (esperado $3, obtenido $2)"; fail=1; fi; }
 
-check "nueve colecciones" "$(app 'db.getCollectionNames().length')" "9"
+check "diez colecciones" "$(app 'db.getCollectionNames().length')" "10"
 check "el validador rechaza un cultivo incompleto" \
   "$(app 'try { db.crops.insertOne({name: "x"}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
 check "el usuario de la app no administra usuarios" \
@@ -51,6 +51,14 @@ check "el validador acepta un vínculo de Telegram completo" \
   "$(app 'db.channel_links.insertOne({userId: new ObjectId(), type: "TELEGRAM", address: "123456789", enabled: true, events: ["ALERT", "DEVICE"], linkedAt: new Date(), failures: NumberInt(0)}).acknowledged')" "true"
 check "el validador rechaza una simulación con un modo desconocido" \
   "$(app 'try { db.virtual_devices.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), mode: "RANDOM", intervalSeconds: NumberInt(30), createdAt: new Date(), updatedAt: new Date()}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
+check "el validador rechaza un cultivo en un lugar desconocido" \
+  "$(app 'try { db.crops.insertOne({ownerId: new ObjectId(), name: "x", type: "TOMATO", automationEnabled: false, createdAt: new Date(), placement: {setting: "ROOF"}}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
+check "el validador acepta un cultivo al aire libre con su ubicación" \
+  "$(app 'const r = db.crops.insertOne({ownerId: new ObjectId(), name: "Tomates", type: "TOMATO", automationEnabled: false, createdAt: new Date(), placement: {setting: "OUTDOOR", exposure: "FULL_SUN", location: {name: "Cali", latitude: 3.4516, longitude: -76.532}}}); db.crops.deleteOne({_id: r.insertedId}).deletedCount')" "1"
+check "el validador rechaza un resumen diario con una hora inválida" \
+  "$(app 'try { db.crop_channels.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), type: "TELEGRAM", enabled: true, delivery: "DIGEST", dailySummaryAt: "25:00"}); "aceptado" } catch (e) { "rechazado" }')" "rechazado"
+check "el validador acepta los avisos de un cultivo compartido" \
+  "$(app 'db.crop_channels.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), type: "TELEGRAM", enabled: true, events: ["ALERT"], delivery: "INSTANT", digestHours: NumberInt(6), dailySummaryAt: "07:30", recipients: [{id: "r1", address: "987654321", displayName: "@ana", addedAt: new Date()}]}).acknowledged')" "true"
 check "el validador acepta una simulación con clima" \
   "$(app 'db.virtual_devices.insertOne({cropId: new ObjectId(), ownerId: new ObjectId(), mode: "WEATHER", location: {name: "Bogota", latitude: 4.711, longitude: -74.0721}, intervalSeconds: NumberInt(30), createdAt: new Date(), updatedAt: new Date()}).acknowledged')" "true"
 
@@ -62,11 +70,13 @@ check "la migración devuelve el validador a una colección que no lo tenía" \
   "$(root 'db.getCollectionInfos({name: "channel_links"})[0].options.validationLevel')" "strict"
 check "la migración deja en moderate una colección con documentos antiguos" \
   "$(root 'db.getCollectionInfos({name: "virtual_devices"})[0].options.validationLevel')" "moderate"
-check "la migración es idempotente" "$(migrate | grep -c ': actualizada')" "9"
+check "la migración es idempotente" "$(migrate | grep -c ': actualizada')" "10"
 
 if [ "$DEMO" = "true" ]; then
   check "cuenta demo" "$(app 'db.users.countDocuments({email: "demo@smartpot.app"})')" "1"
   check "cultivos demo" "$(app 'db.crops.countDocuments()')" "2"
+  check "cultivos demo al aire libre en Medellín" \
+    "$(app 'db.crops.countDocuments({"placement.setting": "OUTDOOR", "placement.location.name": "Medellín"})')" "2"
   check "48 h de lecturas por cultivo" "$(app 'db.readings.countDocuments()')" "576"
 else
   check "sin cultivos" "$(app 'db.crops.countDocuments()')" "0"
