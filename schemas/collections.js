@@ -109,8 +109,10 @@ globalThis.SMARTPOT_SCHEMAS = {
             address: {bsonType: "string", minLength: 1, maxLength: 64},
             displayName: {bsonType: "string", maxLength: 200},
             enabled: {bsonType: "bool"},
-            events: {bsonType: "array", maxItems: NOTIFICATION_TYPES.length, uniqueItems: true,
-                items: {enum: NOTIFICATION_TYPES}},
+            events: {
+                bsonType: "array", maxItems: NOTIFICATION_TYPES.length, uniqueItems: true,
+                items: {enum: NOTIFICATION_TYPES}
+            },
             linkedAt: {bsonType: "date"},
             lastDeliveredAt: {bsonType: "date"},
             failures: {bsonType: "int", minimum: 0}
@@ -125,8 +127,10 @@ globalThis.SMARTPOT_SCHEMAS = {
             ownerId: {bsonType: "objectId"},
             type: {enum: CHANNEL_TYPES},
             enabled: {bsonType: "bool"},
-            events: {bsonType: "array", maxItems: NOTIFICATION_TYPES.length, uniqueItems: true,
-                items: {enum: NOTIFICATION_TYPES}},
+            events: {
+                bsonType: "array", maxItems: NOTIFICATION_TYPES.length, uniqueItems: true,
+                items: {enum: NOTIFICATION_TYPES}
+            },
             delivery: {enum: ["INSTANT", "DIGEST"]},
             digestHours: {bsonType: "int", minimum: 1, maximum: 24},
             dailySummaryAt: {bsonType: "string", pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"},
