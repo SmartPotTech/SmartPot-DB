@@ -133,7 +133,7 @@ Cada cambio en `main` pasa por el CI, publica la imagen en GHCR (y en Docker Hub
 
 ## Documentación
 
-La base guarda todo lo que la plataforma necesita recordar. La [documentación técnica](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Technical_Documentation.md) resume cada colección con sus índices, vencimientos y validación. Los diagramas generales muestran la plataforma completa en una sola imagen ampliable:
+La base guarda todo lo que la plataforma necesita recordar. Su documentación propia está en [`docs/`](docs/SmartPot_DB_Documentation.md) (también en [DOCX](docs/SmartPot_DB_Documentation.docx) y [PDF](docs/SmartPot_DB_Documentation.pdf)), con sus diagramas en [`docs/diagrams`](docs/diagrams): el general de la imagen, las colecciones y la migración. La [documentación técnica](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Technical_Documentation.md) resume cada colección con sus índices, vencimientos y validación. Los diagramas generales muestran la plataforma completa en una sola imagen ampliable:
 
 - [Linaje de los datos](https://github.com/SmartPotTech/.github/blob/main/docs/diagrams/SmartPot_Global_04_Data_Lineage.svg): de dónde sale cada dato, en qué colección queda y quién lo usa
 - [Modelo de dominio](https://github.com/SmartPotTech/.github/blob/main/docs/diagrams/SmartPot_Global_06_Domain_Model.svg): las entidades de la API que se guardan en cada colección
