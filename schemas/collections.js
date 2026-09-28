@@ -9,6 +9,10 @@ const NOTIFICATION_TYPES = ["INFO", "ALERT", "COMMAND", "DEVICE", "AI"];
 const CROP_KINDS = ["REAL", "VIRTUAL"];
 // Forma del sistema hidropónico: maceta, tubos NFT, torre vertical o balsa flotante.
 const CROP_FORMS = ["POT", "NFT", "TOWER", "RAFT"];
+// Lugar del cultivo: bajo techo o al aire libre, y cuánto sol recibe.
+const PLACEMENT_SETTINGS = ["INDOOR", "OUTDOOR"];
+const SUN_EXPOSURES = ["FULL_SUN", "PARTIAL_SUN", "SHADE"];
+const CHANNEL_TYPES = ["TELEGRAM"];
 
 globalThis.SMARTPOT_SCHEMAS = {
     users: {
@@ -28,6 +32,22 @@ globalThis.SMARTPOT_SCHEMAS = {
             type: {enum: CROP_TYPES},
             kind: {enum: CROP_KINDS},
             form: {enum: CROP_FORMS},
+            placement: {
+                bsonType: "object",
+                properties: {
+                    setting: {enum: PLACEMENT_SETTINGS},
+                    exposure: {enum: SUN_EXPOSURES},
+                    location: {
+                        bsonType: "object",
+                        required: ["name", "latitude", "longitude"],
+                        properties: {
+                            name: {bsonType: "string", minLength: 1, maxLength: 120},
+                            latitude: {bsonType: "double", minimum: -90, maximum: 90},
+                            longitude: {bsonType: "double", minimum: -180, maximum: 180}
+                        }
+                    }
+                }
+            },
             automationEnabled: {bsonType: "bool"},
             createdAt: {bsonType: "date"}
         }
@@ -85,7 +105,7 @@ globalThis.SMARTPOT_SCHEMAS = {
         required: ["userId", "type", "address", "enabled", "events", "linkedAt", "failures"],
         properties: {
             userId: {bsonType: "objectId"},
-            type: {enum: ["TELEGRAM"]},
+            type: {enum: CHANNEL_TYPES},
             address: {bsonType: "string", minLength: 1, maxLength: 64},
             displayName: {bsonType: "string", maxLength: 200},
             enabled: {bsonType: "bool"},
@@ -94,6 +114,39 @@ globalThis.SMARTPOT_SCHEMAS = {
             linkedAt: {bsonType: "date"},
             lastDeliveredAt: {bsonType: "date"},
             failures: {bsonType: "int", minimum: 0}
+        }
+    },
+    // Avisos de un cultivo por un canal: qué avisa, al instante o en resumen, el resumen diario (hora local HH:mm) y
+    // los chats con los que se comparte (hasta 10).
+    crop_channels: {
+        required: ["cropId", "ownerId", "type", "enabled", "delivery"],
+        properties: {
+            cropId: {bsonType: "objectId"},
+            ownerId: {bsonType: "objectId"},
+            type: {enum: CHANNEL_TYPES},
+            enabled: {bsonType: "bool"},
+            events: {bsonType: "array", maxItems: NOTIFICATION_TYPES.length, uniqueItems: true,
+                items: {enum: NOTIFICATION_TYPES}},
+            delivery: {enum: ["INSTANT", "DIGEST"]},
+            digestHours: {bsonType: "int", minimum: 1, maximum: 24},
+            dailySummaryAt: {bsonType: "string", pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"},
+            recipients: {
+                bsonType: "array",
+                maxItems: 10,
+                items: {
+                    bsonType: "object",
+                    required: ["id", "address"],
+                    properties: {
+                        id: {bsonType: "string", minLength: 1, maxLength: 64},
+                        address: {bsonType: "string", minLength: 1, maxLength: 64},
+                        displayName: {bsonType: "string", maxLength: 200},
+                        addedAt: {bsonType: "date"}
+                    }
+                }
+            },
+            lastDigestAt: {bsonType: "date"},
+            lastSummaryAt: {bsonType: "date"},
+            updatedAt: {bsonType: "date"}
         }
     },
     // Simulación de un cultivo virtual: el simulador la recrea a partir de este documento; active es false en pausa.
