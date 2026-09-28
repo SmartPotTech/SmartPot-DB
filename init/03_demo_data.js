@@ -89,9 +89,18 @@ if ((process.env.SMARTPOT_SEED_DEMO || "false").toLowerCase() !== "true") {
     const pump = target.actuators.findOne({cropId: lettuce, type: "WATER_PUMP"});
     target.commands.insertMany([
         {
-            cropId: lettuce, actuatorId: pump._id, actuatorType: "WATER_PUMP", action: "ACTIVATE",
-            durationSeconds: 15, status: "EXECUTED", source: "AGENT", reason: "El sustrato está seco: riego automático.",
-            message: "Bomba encendida 15 s", createdAt: hoursAgo(5), sentAt: hoursAgo(5), completedAt: hoursAgo(5)
+            cropId: lettuce,
+            actuatorId: pump._id,
+            actuatorType: "WATER_PUMP",
+            action: "ACTIVATE",
+            durationSeconds: 15,
+            status: "EXECUTED",
+            source: "AGENT",
+            reason: "El sustrato está seco: riego automático.",
+            message: "Bomba encendida 15 s",
+            createdAt: hoursAgo(5),
+            sentAt: hoursAgo(5),
+            completedAt: hoursAgo(5)
         },
         {
             cropId: lettuce, actuatorId: pump._id, actuatorType: "WATER_PUMP", action: "ACTIVATE",
