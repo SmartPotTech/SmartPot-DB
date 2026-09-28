@@ -24,14 +24,18 @@ if ((process.env.SMARTPOT_SEED_DEMO || "false").toLowerCase() !== "true") {
 
     // Las claves de dispositivo están cifradas con la clave AES de demostración
     // (SMARTPOT_AES_KEY del entorno demo): demo-lettuce-device-key-2026 y demo-tomato-device-key-2026.
+    // Los dos están al aire libre en Medellín: la lechuga en media sombra y el tomate a pleno sol.
+    const MEDELLIN = {name: "Medellín", latitude: 6.2442, longitude: -75.5812};
     const crops = [
         {
             _id: lettuce, name: "Lechugas del balcón", type: "LETTUCE", form: "NFT",
+            placement: {setting: "OUTDOOR", exposure: "PARTIAL_SUN", location: MEDELLIN},
             key: "dZoM-zwvWcnt7AeNAc525CnuHS_1gO24GfT1ueMeUsotqk5UG6ZdKeD8vaZFpL3RMbLAJ_FIREg",
             base: {temperature: 19, humidity: 62, brightness: 850, ph: 6.0, tds: 700, soilMoisture: 70}
         },
         {
             _id: tomato, name: "Tomates cherry", type: "TOMATO", form: "POT",
+            placement: {setting: "OUTDOOR", exposure: "FULL_SUN", location: MEDELLIN},
             key: "_NGpODcRRCGaJBGeHGquaU0Zpkup3YI-P-v4Ux9eRFPMs6kSiDNCx5Q4uWTWQ0Uds5rqGDnaxA",
             base: {temperature: 25, humidity: 68, brightness: 1300, ph: 6.2, tds: 2000, soilMoisture: 64}
         }
@@ -46,6 +50,7 @@ if ((process.env.SMARTPOT_SEED_DEMO || "false").toLowerCase() !== "true") {
             // Los dos cultivos demo publican por MQTT con su clave, como un dispositivo real.
             kind: "REAL",
             form: crop.form,
+            placement: crop.placement,
             automationEnabled: crop.type === "LETTUCE",
             device: {keyCiphertext: crop.key, keyRotatedAt: hoursAgo(72), online: false, lastSeenAt: hoursAgo(1)},
             createdAt: hoursAgo(72),
