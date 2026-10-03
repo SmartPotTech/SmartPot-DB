@@ -8,7 +8,7 @@
 ## Descripción
 
 SmartPot-DB es la base de datos de **SmartPot**: una imagen de **MongoDB 8.0** que en su primer arranque crea el usuario
-de la aplicación, las nueve colecciones con **validación `$jsonSchema`** y, si se pide, una cuenta de demostración con
+de la aplicación, las diez colecciones con **validación `$jsonSchema`** y, si se pide, una cuenta de demostración con
 dos cultivos y 48 horas de lecturas. [SmartPot-API](https://github.com/SmartPotTech/SmartPot-API) se conecta con el
 usuario de la aplicación, que solo tiene `readWrite` sobre su base, y crea los índices al arrancar.
 
@@ -27,7 +27,7 @@ SmartPot-DB/
 │   ├── 02_collections.js       # Aplica los esquemas en una base nueva
 │   └── 03_demo_data.js         # Datos demo si SMARTPOT_SEED_DEMO=true
 ├── schemas/
-│   └── collections.js          # Esquemas de las nueve colecciones y su aplicación idempotente
+│   └── collections.js          # Esquemas de las diez colecciones y su aplicación idempotente
 ├── scripts/
 │   └── migrate.js              # Aplica los esquemas a una base existente
 ├── tests/
@@ -41,31 +41,33 @@ SmartPot-DB/
 
 ```mermaid
 erDiagram
-  USERS ||--o{ CROPS : owns
-  USERS ||--o{ NOTIFICATIONS : receives
-  USERS ||--o{ PASSWORD_RESET_TOKENS : requests
-  CROPS ||--o{ READINGS : records
-  CROPS ||--o{ ACTUATORS : has
-  CROPS ||--o{ COMMANDS : receives
-  ACTUATORS ||--o{ COMMANDS : executes
-  USERS ||--o{ CHANNEL_LINKS : links
-  CROPS ||--o| VIRTUAL_DEVICES : simulates
+  USERS ||--o{ CROPS : "es dueño de"
+  USERS ||--o{ NOTIFICATIONS : "recibe"
+  USERS ||--o{ PASSWORD_RESET_TOKENS : "solicita"
+  CROPS ||--o{ READINGS : "registra"
+  CROPS ||--o{ ACTUATORS : "tiene"
+  CROPS ||--o{ COMMANDS : "recibe"
+  ACTUATORS ||--o{ COMMANDS : "ejecuta"
+  USERS ||--o{ CHANNEL_LINKS : "vincula"
+  CROPS ||--o{ CROP_CHANNELS : "avisa por"
+  CROPS ||--o| VIRTUAL_DEVICES : "simula si es virtual"
 ```
 
-| Colección               | Campos obligatorios                                                               | Reglas                                                                                                                                                                                      |
-|-------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `users`                 | `email`, `passwordHash`, `role`, `createdAt`                                      | Hash BCrypt; rol `USER` o `ADMIN`                                                                                                                                                           |
-| `crops`                 | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt`                       | Seis especies; `kind` `REAL` o `VIRTUAL` (no cambia tras crearlo); `form` `POT`, `NFT`, `TOWER` o `RAFT`; `device` guarda la clave cifrada del dispositivo                                  |
-| `readings`              | `cropId`, `measuredAt`, `measures`                                                | Origen `MQTT` o `HTTP`; la API las borra al año (TTL)                                                                                                                                       |
-| `actuators`             | `cropId`, `type`, `active`                                                        | Uno por tipo en cada cultivo                                                                                                                                                                |
-| `commands`              | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados `PENDING`, `SENT`, `EXECUTED`, `FAILED`, `EXPIRED`; TTL de 180 días                                                                                                                 |
-| `notifications`         | `userId`, `type`, `title`, `message`, `read`, `createdAt`                         | TTL de 90 días                                                                                                                                                                              |
-| `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt`                                                | Solo el SHA-256 del token; se borra al vencer                                                                                                                                               |
-| `channel_links`         | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures`          | Canal `TELEGRAM`; `address` es el id del chat; `events` sin repetidos entre los tipos de notificación                                                                                       |
-| `virtual_devices`       | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt`          | Simulación de un cultivo virtual; modo `AUTO`, `MANUAL` o `WEATHER`; intervalo de 10 a 300 s; `active` en `false` mientras está en pausa; `location` con nombre, latitud y longitud válidas |
+| Colección               | Campos obligatorios                                                               | Reglas                                                                                                                                                                                                                                                                                          |
+|-------------------------|-----------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `users`                 | `email`, `passwordHash`, `role`, `createdAt`                                      | Hash BCrypt; rol `USER` o `ADMIN`                                                                                                                                                                                                                                                               |
+| `crops`                 | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt`                       | Seis especies; `kind` `REAL` o `VIRTUAL` (no cambia tras crearlo); `form` `POT`, `NFT`, `TOWER` o `RAFT`; `placement` con `setting` `INDOOR` u `OUTDOOR`, `exposure` `FULL_SUN`, `PARTIAL_SUN` o `SHADE` y `location` con coordenadas válidas; `device` guarda la clave cifrada del dispositivo |
+| `readings`              | `cropId`, `measuredAt`, `measures`                                                | Origen `MQTT` o `HTTP`; la API las borra al año (TTL)                                                                                                                                                                                                                                           |
+| `actuators`             | `cropId`, `type`, `active`                                                        | Uno por tipo en cada cultivo                                                                                                                                                                                                                                                                    |
+| `commands`              | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados `PENDING`, `SENT`, `EXECUTED`, `FAILED`, `EXPIRED`; TTL de 180 días                                                                                                                                                                                                                     |
+| `notifications`         | `userId`, `type`, `title`, `message`, `read`, `createdAt`                         | TTL de 90 días                                                                                                                                                                                                                                                                                  |
+| `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt`                                                | Solo el SHA-256 del token; se borra al vencer                                                                                                                                                                                                                                                   |
+| `channel_links`         | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures`          | Canal `TELEGRAM`; `address` es el id del chat; `events` sin repetidos entre los tipos de notificación                                                                                                                                                                                           |
+| `crop_channels`         | `cropId`, `ownerId`, `type`, `enabled`, `delivery`                                | Avisos de un cultivo por canal: `delivery` `INSTANT` o `DIGEST`, `digestHours` de 1 a 24, `dailySummaryAt` en `HH:mm` y hasta 10 `recipients`                                                                                                                                                   |
+| `virtual_devices`       | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt`          | Simulación de un cultivo virtual; modo `AUTO`, `MANUAL` o `WEATHER`; intervalo de 10 a 300 s; `active` en `false` mientras está en pausa; `location` con nombre, latitud y longitud válidas                                                                                                     |
 
 Los identificadores entre colecciones se guardan como `ObjectId`. Los campos de más (como `_class`) se permiten; los
-tipos y valores de los campos listados no. Los índices, incluidos los únicos de `channel_links` y `virtual_devices`, los
+tipos y valores de los campos listados no. Los índices, incluidos los únicos de `channel_links`, `crop_channels` y `virtual_devices`, los
 crea la API al arrancar.
 
 ## Migración
@@ -87,10 +89,10 @@ hasta corregirlos. Sin documentos inválidos queda en `strict`.
 
 Con `SMARTPOT_SEED_DEMO=true` se carga la cuenta **`demo@smartpot.app`** con contraseña **`SmartPot2026`**:
 
-| Cultivo             | Especie   | Forma     | Contenido                                                               |
-|---------------------|-----------|-----------|-------------------------------------------------------------------------|
-| Lechugas del balcón | `LETTUCE` | Tubos NFT | Modo automático activo, 288 lecturas, un riego del agente y otro manual |
-| Tomates cherry      | `TOMATO`  | Maceta    | 288 lecturas con ciclo día/noche                                        |
+| Cultivo             | Especie   | Forma     | Contenido                                                                                                          |
+|---------------------|-----------|-----------|--------------------------------------------------------------------------------------------------------------------|
+| Lechugas del balcón | `LETTUCE` | Tubos NFT | Al aire libre en media sombra en Medellín, modo automático activo, 288 lecturas, un riego del agente y otro manual |
+| Tomates cherry      | `TOMATO`  | Maceta    | Al aire libre a pleno sol en Medellín, 288 lecturas con ciclo día/noche                                            |
 
 Los dos son cultivos **reales**: publican por MQTT con su propia clave, igual que un ESP32 o su simulación en Wokwi.
 
