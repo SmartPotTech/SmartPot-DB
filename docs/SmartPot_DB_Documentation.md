@@ -3,9 +3,9 @@ eyebrow: Documentación del componente
 titulo: SmartPot-DB
 acento: DB
 subtitulo: La memoria de SmartPot
-bajada: MongoDB 8 con validación $jsonSchema en nueve colecciones, usuario de la aplicación con permisos mínimos, datos demo opcionales y migración idempotente para bases existentes.
+bajada: MongoDB 8 con validación $jsonSchema en diez colecciones, usuario de la aplicación con permisos mínimos, datos demo opcionales y migración idempotente para bases existentes.
 documento: SmartPot-DB
-version: 1.0 · septiembre 2026
+version: 1.1 · octubre 2026
 equipo: SmartPotTech
 proyecto: smartpot.app
 -->
@@ -18,7 +18,7 @@ proyecto: smartpot.app
 |--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Proyecto                       | SmartPot · [smartpot.app](https://smartpot.app)                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Componente                     | [SmartPot-DB](https://github.com/SmartPotTech/SmartPot-DB)                                                                                                                                                                                                                                                                                                                                                                                              |
-| Versión                        | 1.0 · septiembre 2026                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Versión                        | 1.1 · octubre 2026                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Alcance                        | Colecciones y validadores, inicialización, migración, datos demo, configuración, pruebas y operación                                                                                                                                                                                                                                                                                                                                                    |
 | Documentación de la plataforma | [Documentación técnica](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Technical_Documentation.md), [recorrido del proyecto](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Project_Journey.md), [ciclo de vida](https://github.com/SmartPotTech/.github/blob/main/docs/SmartPot_Software_Lifecycle.md) y [diagramas generales](https://github.com/SmartPotTech/.github/blob/main/docs/README.md#diagramas-generales) |
 | Mantenimiento                  | Se genera desde `docs/` de este repositorio con las herramientas de `.github/docs/tools`; se actualiza con cada cambio del componente                                                                                                                                                                                                                                                                                                                   |
@@ -86,6 +86,7 @@ erDiagram
   CROPS ||--o{ READINGS : "registra"
   CROPS ||--o{ ACTUATORS : "tiene"
   CROPS ||--o{ COMMANDS : "recibe"
+  CROPS ||--o{ CROP_CHANNELS : "avisa por"
   CROPS ||--o| VIRTUAL_DEVICES : "simula si es virtual"
   ACTUATORS ||--o{ COMMANDS : "ejecuta"
   CROPS {
@@ -94,6 +95,7 @@ erDiagram
     string type "seis especies"
     string kind "REAL o VIRTUAL"
     string form "POT, NFT, TOWER, RAFT"
+    object placement "lugar, exposición y ubicación"
     bool automationEnabled "obligatorio"
     date createdAt "obligatorio"
   }
@@ -102,6 +104,16 @@ erDiagram
     date measuredAt "obligatorio"
     object measures "obligatorio"
     string source "MQTT o HTTP"
+  }
+  CROP_CHANNELS {
+    ObjectId cropId "obligatorio"
+    ObjectId ownerId "obligatorio"
+    string type "TELEGRAM"
+    bool enabled "obligatorio"
+    string delivery "INSTANT o DIGEST"
+    int digestHours "1 a 24"
+    string dailySummaryAt "HH:mm"
+    array recipients "hasta 10"
   }
   VIRTUAL_DEVICES {
     ObjectId cropId "obligatorio"
@@ -113,17 +125,18 @@ erDiagram
   }
 ```
 
-| Colección               | Campos obligatorios                                                               | Reglas                                                                          |
-|-------------------------|-----------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| `users`                 | `email`, `passwordHash`, `role`, `createdAt`                                      | Hash BCrypt; rol `USER` o `ADMIN`                                               |
-| `crops`                 | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt`                       | Seis especies; `kind` `REAL` o `VIRTUAL`; `form` `POT`, `NFT`, `TOWER` o `RAFT` |
-| `readings`              | `cropId`, `measuredAt`, `measures`                                                | Origen `MQTT` o `HTTP`; TTL de un año que crea la API                           |
-| `actuators`             | `cropId`, `type`, `active`                                                        | Seis tipos                                                                      |
-| `commands`              | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados y orígenes del catálogo; TTL de 180 días                                |
-| `notifications`         | `userId`, `type`, `title`, `message`, `read`, `createdAt`                         | TTL de 90 días                                                                  |
-| `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt`                                                | Solo el SHA-256 del token                                                       |
-| `channel_links`         | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures`          | Canal `TELEGRAM`                                                                |
-| `virtual_devices`       | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt`          | Solo cultivos virtuales; `active` en `false` durante la pausa                   |
+| Colección               | Campos obligatorios                                                               | Reglas                                                                                                                                   |
+|-------------------------|-----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `users`                 | `email`, `passwordHash`, `role`, `createdAt`                                      | Hash BCrypt; rol `USER` o `ADMIN`                                                                                                        |
+| `crops`                 | `ownerId`, `name`, `type`, `automationEnabled`, `createdAt`                       | Seis especies; `kind` `REAL` o `VIRTUAL`; `form` `POT`, `NFT`, `TOWER` o `RAFT`; `placement` con lugar, exposición y coordenadas válidas |
+| `readings`              | `cropId`, `measuredAt`, `measures`                                                | Origen `MQTT` o `HTTP`; TTL de un año que crea la API                                                                                    |
+| `actuators`             | `cropId`, `type`, `active`                                                        | Seis tipos                                                                                                                               |
+| `commands`              | `cropId`, `actuatorId`, `actuatorType`, `action`, `status`, `source`, `createdAt` | Estados y orígenes del catálogo; TTL de 180 días                                                                                         |
+| `notifications`         | `userId`, `type`, `title`, `message`, `read`, `createdAt`                         | TTL de 90 días                                                                                                                           |
+| `password_reset_tokens` | `tokenHash`, `userId`, `expiresAt`                                                | Solo el SHA-256 del token                                                                                                                |
+| `channel_links`         | `userId`, `type`, `address`, `enabled`, `events`, `linkedAt`, `failures`          | Canal `TELEGRAM`                                                                                                                         |
+| `crop_channels`         | `cropId`, `ownerId`, `type`, `enabled`, `delivery`                                | `INSTANT` o `DIGEST`; resumen cada 1 a 24 h; `HH:mm`; hasta 10 chats                                                                     |
+| `virtual_devices`       | `cropId`, `ownerId`, `mode`, `intervalSeconds`, `createdAt`, `updatedAt`          | Solo cultivos virtuales; `active` en `false` durante la pausa                                                                            |
 
 <!-- parte: PARTE II | Operación -->
 
@@ -135,7 +148,7 @@ erDiagram
 %%{init: {"theme": "base", "fontFamily": "Segoe UI, Arial, sans-serif", "themeVariables": {"fontFamily": "Segoe UI, Arial, sans-serif", "fontSize": "15px", "primaryColor": "#DDF5EA", "primaryTextColor": "#17261F", "primaryBorderColor": "#067A52", "secondaryColor": "#E3F2FB", "secondaryTextColor": "#17261F", "secondaryBorderColor": "#1F6FA0", "tertiaryColor": "#F2F7F4", "tertiaryTextColor": "#17261F", "tertiaryBorderColor": "#D5E3DC", "lineColor": "#5B6B63", "textColor": "#17261F", "mainBkg": "#DDF5EA", "nodeBorder": "#067A52", "clusterBkg": "#F7FAF8", "clusterBorder": "#D5E3DC", "edgeLabelBackground": "#FFFFFF", "actorBkg": "#067A52", "actorBorder": "#0B3D2B", "actorTextColor": "#FFFFFF", "actorLineColor": "#5B6B63", "signalColor": "#17261F", "signalTextColor": "#17261F", "labelBoxBkgColor": "#0B3D2B", "labelBoxBorderColor": "#0B3D2B", "labelTextColor": "#FFFFFF", "loopTextColor": "#0B3D2B", "noteBkgColor": "#FDF4DD", "noteBorderColor": "#C98D12", "noteTextColor": "#17261F", "activationBkgColor": "#DDF5EA", "activationBorderColor": "#067A52", "attributeBackgroundColorOdd": "#FFFFFF", "attributeBackgroundColorEven": "#F2F7F4"}}}%%
 flowchart TB
   start(["mongosh /opt/smartpot/migrate.js"]) --> auth["Se autentica con la root del entorno<br/>MONGO_INITDB_ROOT_USERNAME y PASSWORD"]
-  auth --> each{"Por cada una de las 9 colecciones"}
+  auth --> each{"Por cada una de las 10 colecciones"}
   each --> exists{"¿Existe?"}
   exists -->|"No"| create["createCollection con el validador<br/>validationLevel strict"]
   exists -->|"Sí"| count["Cuenta los documentos<br/>que no cumplen el esquema"]
@@ -177,7 +190,7 @@ Con `SMARTPOT_SEED_DEMO=true` se crea la cuenta `demo@smartpot.app` (contraseña
 
 ## 7. Pruebas
 
-`sh tests/validate.sh smartpot-db:ci true` levanta la imagen y comprueba las nueve colecciones con sus validadores, los
+`sh tests/validate.sh smartpot-db:ci true` levanta la imagen y comprueba las diez colecciones con sus validadores (el lugar del cultivo y los avisos por cultivo incluidos), los
 permisos del usuario de la aplicación, los datos demo y la migración sobre una base anterior (una colección sin
 validador y otra con un documento antiguo), incluida su idempotencia. En Git Bash de Windows: `MSYS_NO_PATHCONV=1`.
 
