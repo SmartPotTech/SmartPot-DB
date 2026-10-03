@@ -1,4 +1,4 @@
-FROM mongo:8.0
+FROM mongo:8.2
 
 LABEL org.opencontainers.image.title="SmartPot DB" \
       org.opencontainers.image.description="MongoDB de SmartPot con validación de colecciones y datos demo opcionales" \
