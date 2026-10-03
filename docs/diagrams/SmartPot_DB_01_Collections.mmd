@@ -7,6 +7,7 @@ erDiagram
   CROPS ||--o{ READINGS : "registra"
   CROPS ||--o{ ACTUATORS : "tiene"
   CROPS ||--o{ COMMANDS : "recibe"
+  CROPS ||--o{ CROP_CHANNELS : "avisa por"
   CROPS ||--o| VIRTUAL_DEVICES : "simula si es virtual"
   ACTUATORS ||--o{ COMMANDS : "ejecuta"
   CROPS {
@@ -15,6 +16,7 @@ erDiagram
     string type "seis especies"
     string kind "REAL o VIRTUAL"
     string form "POT, NFT, TOWER, RAFT"
+    object placement "lugar, exposición y ubicación"
     bool automationEnabled "obligatorio"
     date createdAt "obligatorio"
   }
@@ -23,6 +25,16 @@ erDiagram
     date measuredAt "obligatorio"
     object measures "obligatorio"
     string source "MQTT o HTTP"
+  }
+  CROP_CHANNELS {
+    ObjectId cropId "obligatorio"
+    ObjectId ownerId "obligatorio"
+    string type "TELEGRAM"
+    bool enabled "obligatorio"
+    string delivery "INSTANT o DIGEST"
+    int digestHours "1 a 24"
+    string dailySummaryAt "HH:mm"
+    array recipients "hasta 10"
   }
   VIRTUAL_DEVICES {
     ObjectId cropId "obligatorio"
