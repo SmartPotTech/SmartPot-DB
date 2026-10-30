@@ -8,7 +8,8 @@ LABEL org.opencontainers.image.title="SmartPot DB" \
 ENV MONGO_INITDB_DATABASE=smartpot \
     SMARTPOT_DB_NAME=smartpot \
     SMARTPOT_DB_USERNAME=smartpot \
-    SMARTPOT_SEED_DEMO=false
+    SMARTPOT_SEED_DEMO=false \
+    GLIBC_TUNABLES=glibc.pthread.rseq=0
 
 # Los esquemas los comparten el inicio de una base nueva y la migración de una base existente.
 COPY --chown=999:999 schemas/ /opt/smartpot/schemas/
