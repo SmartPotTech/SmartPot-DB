@@ -6,16 +6,30 @@ set -eu
 IMAGE="${1:-smartpot-db:ci}"
 DEMO="${2:-false}"
 NAME="smartpot-db-validate"
+DATA_VOL="${NAME}-data"
+CONFIG_VOL="${NAME}-config"
 APP_PASS="app-password-ci-1234"
 ROOT_PASS="root-password-ci-123"
 
-cleanup() { docker rm -f "$NAME" >/dev/null 2>&1 || true; }
+cleanup() {
+  local code=$?
+  if [ "$code" -ne 0 ]; then
+    echo "=== ERROR EXIT (code $code): DOCKER LOGS ($NAME) ==="
+    docker logs "$NAME" 2>&1 | tail -100 || true
+  fi
+  docker rm -f "$NAME" >/dev/null 2>&1 || true
+  docker volume rm -f "$DATA_VOL" "$CONFIG_VOL" >/dev/null 2>&1 || true
+}
 trap cleanup EXIT
 cleanup
 
+docker volume create "$DATA_VOL" >/dev/null
+docker volume create "$CONFIG_VOL" >/dev/null
+
 docker run -d --name "$NAME" \
-  --read-only --tmpfs /tmp --tmpfs /data/db:uid=999,gid=999 \
-  --tmpfs /data/configdb:uid=999,gid=999 --tmpfs /run \
+  --read-only --tmpfs /tmp \
+  -v "$DATA_VOL:/data/db" \
+  -v "$CONFIG_VOL:/data/configdb" \
   --cap-drop ALL --security-opt no-new-privileges \
   -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD="$ROOT_PASS" \
   -e SMARTPOT_DB_PASSWORD="$APP_PASS" -e SMARTPOT_SEED_DEMO="$DEMO" \
@@ -27,6 +41,11 @@ migrate() { docker exec "$NAME" mongosh --quiet /opt/smartpot/migrate.js; }
 
 # Los scripts de init corren en un mongod temporal que después se reinicia: se espera a que termine.
 for _ in $(seq 1 90); do
+  if ! docker ps -q --no-trunc | grep -q "^$(docker inspect -f '{{.Id}}' "$NAME" 2>/dev/null)$"; then
+    echo "ERROR: el contenedor $NAME se detuvo prematuramente"
+    docker logs "$NAME" 2>&1 | tail -100 || true
+    exit 1
+  fi
   docker logs "$NAME" 2>&1 | grep -q "MongoDB init process complete" && break
   sleep 2
 done
