@@ -15,6 +15,7 @@ cleanup
 
 docker run -d --name "$NAME" \
   --read-only --tmpfs /tmp --tmpfs /data/db:uid=999,gid=999 \
+  --tmpfs /data/configdb:uid=999,gid=999 --tmpfs /run \
   --cap-drop ALL --security-opt no-new-privileges \
   -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD="$ROOT_PASS" \
   -e SMARTPOT_DB_PASSWORD="$APP_PASS" -e SMARTPOT_SEED_DEMO="$DEMO" \
@@ -82,5 +83,5 @@ else
   check "sin cultivos" "$(app 'db.crops.countDocuments()')" "0"
 fi
 
-[ "$fail" -eq 0 ] || docker logs "$NAME" | tail -30
+[ "$fail" -eq 0 ] || docker logs "$NAME" 2>&1 | tail -50
 exit "$fail"
