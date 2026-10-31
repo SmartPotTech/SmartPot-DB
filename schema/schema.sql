@@ -186,11 +186,10 @@ FROM readings
 GROUP BY crop_id, bucket
 WITH NO DATA;
 
-SELECT add_continuous_aggregate_policy('readings_1m',
-    start_offset => INTERVAL '2 hours',
-    end_offset => INTERVAL '1 minute',
-    schedule_interval => INTERVAL '1 minute',
-    if_not_exists => TRUE);
+-- Agregación en tiempo real: suma lo aún no materializado, así las series incluyen las últimas lecturas.
+ALTER MATERIALIZED VIEW readings_1m SET (timescaledb.materialized_only = false);
+-- Argumentos posicionales (start_offset, end_offset, schedule_interval, if_not_exists): sin `=>`.
+SELECT add_continuous_aggregate_policy('readings_1m', INTERVAL '2 hours', INTERVAL '1 minute', INTERVAL '1 minute', TRUE);
 
 -- Vista continua de 15 minutos para series intermedias y agregación analítica
 CREATE MATERIALIZED VIEW IF NOT EXISTS readings_15m
@@ -223,11 +222,10 @@ FROM readings
 GROUP BY crop_id, bucket
 WITH NO DATA;
 
-SELECT add_continuous_aggregate_policy('readings_15m',
-    start_offset => INTERVAL '24 hours',
-    end_offset => INTERVAL '15 minutes',
-    schedule_interval => INTERVAL '15 minutes',
-    if_not_exists => TRUE);
+-- Agregación en tiempo real: suma lo aún no materializado, así las series incluyen las últimas lecturas.
+ALTER MATERIALIZED VIEW readings_15m SET (timescaledb.materialized_only = false);
+-- Argumentos posicionales (start_offset, end_offset, schedule_interval, if_not_exists): sin `=>`.
+SELECT add_continuous_aggregate_policy('readings_15m', INTERVAL '24 hours', INTERVAL '15 minutes', INTERVAL '15 minutes', TRUE);
 
 -- Vista materializada continua para acelerar consultas analíticas y series temporales sin escanear datos crudos.
 CREATE MATERIALIZED VIEW IF NOT EXISTS readings_hourly
@@ -261,11 +259,10 @@ GROUP BY crop_id, bucket
 WITH NO DATA;
 
 -- Política de refresco automático: refresca ventanas de 30 días a 1 hora hacia atrás.
-SELECT add_continuous_aggregate_policy('readings_hourly',
-    start_offset => INTERVAL '30 days',
-    end_offset => INTERVAL '1 hour',
-    schedule_interval => INTERVAL '1 hour',
-    if_not_exists => TRUE);
+-- Agregación en tiempo real: suma lo aún no materializado, así las series incluyen las últimas lecturas.
+ALTER MATERIALIZED VIEW readings_hourly SET (timescaledb.materialized_only = false);
+-- Argumentos posicionales (start_offset, end_offset, schedule_interval, if_not_exists): sin `=>`.
+SELECT add_continuous_aggregate_policy('readings_hourly', INTERVAL '30 days', INTERVAL '1 hour', INTERVAL '1 hour', TRUE);
 
 -- Salidas de cada cultivo (bomba, luz UV, ventilador, humidificador y dosificadores) y su estado confirmado.
 CREATE TABLE IF NOT EXISTS actuators
