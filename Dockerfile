@@ -1,4 +1,4 @@
-FROM mongo:7.0
+FROM mongo:8.0
 
 LABEL org.opencontainers.image.title="SmartPot DB" \
       org.opencontainers.image.description="MongoDB de SmartPot con validación de colecciones y datos demo opcionales" \
@@ -9,7 +9,10 @@ ENV MONGO_INITDB_DATABASE=smartpot \
     SMARTPOT_DB_NAME=smartpot \
     SMARTPOT_DB_USERNAME=smartpot \
     SMARTPOT_SEED_DEMO=false \
-    GLIBC_TUNABLES=glibc.pthread.rseq=0
+    GLIBC_TUNABLES=glibc.pthread.rseq=1
+
+# Con kernels 6.19 a 7.0.13 el TCMalloc de mongod 8 choca con rseq (SERVER-121912) y la base no arranca. Dejar que
+# glibc registre rseq (rseq=1) obliga a TCMalloc a usar cachés por hilo y la base arranca en cualquier kernel.
 
 # Los esquemas los comparten el inicio de una base nueva y la migración de una base existente.
 COPY --chown=999:999 schemas/ /opt/smartpot/schemas/

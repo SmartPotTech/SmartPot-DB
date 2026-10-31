@@ -31,7 +31,7 @@ docker run -d --name "$NAME" \
   -v "$DATA_VOL:/data/db" \
   -v "$CONFIG_VOL:/data/configdb" \
   --cap-drop ALL --security-opt no-new-privileges \
-  -e GLIBC_TUNABLES=glibc.pthread.rseq=0 \
+  -e GLIBC_TUNABLES=glibc.pthread.rseq=1 \
   -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD="$ROOT_PASS" \
   -e SMARTPOT_DB_PASSWORD="$APP_PASS" -e SMARTPOT_SEED_DEMO="$DEMO" \
   "$IMAGE" >/dev/null
