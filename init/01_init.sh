@@ -8,6 +8,8 @@ APP_USER="${SMARTPOT_DB_USERNAME:-smartpot}"
 APP_PASSWORD="${SMARTPOT_DB_PASSWORD:-}"
 INGEST_USER="${SMARTPOT_INGEST_USERNAME:-smartpot_ingest}"
 INGEST_PASSWORD="${SMARTPOT_INGEST_PASSWORD:-${APP_PASSWORD}}"
+READER_USER="${SMARTPOT_READER_USERNAME:-smartpot_reader}"
+READER_PASSWORD="${SMARTPOT_READER_PASSWORD:-}"
 
 if [ "${#APP_PASSWORD}" -lt 16 ]; then
     echo "SMARTPOT_DB_PASSWORD debe tener al menos 16 caracteres" >&2
@@ -65,6 +67,30 @@ ALTER SYSTEM SET checkpoint_completion_target = '0.9';
 ALTER SYSTEM SET random_page_cost = '1.1';
 SELECT pg_reload_conf();
 SQL
+
+# Rol opcional de solo lectura para el entrenador de la IA: ve la telemetría y, de los cultivos, solo el id, la especie
+# y si es real o virtual (ni dueños, ni nombres, ni claves de dispositivo).
+if [ -n "$READER_PASSWORD" ]; then
+    if [ "${#READER_PASSWORD}" -lt 16 ]; then
+        echo "SMARTPOT_READER_PASSWORD debe tener al menos 16 caracteres" >&2
+        exit 1
+    fi
+    echo "SmartPot: creando el rol de solo lectura '$READER_USER'"
+    psql_super --set=reader_user="$READER_USER" --set=reader_password="$READER_PASSWORD" --set=app_db="$POSTGRES_DB" <<'SQL'
+SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'reader_user', :'reader_password')
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'reader_user')
+UNION ALL
+SELECT format('ALTER ROLE %I LOGIN PASSWORD %L', :'reader_user', :'reader_password')
+WHERE EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'reader_user')
+\gexec
+
+ALTER ROLE :"reader_user" SET default_transaction_read_only = on;
+GRANT CONNECT ON DATABASE :"app_db" TO :"reader_user";
+GRANT USAGE ON SCHEMA public TO :"reader_user";
+GRANT SELECT ON TABLE readings TO :"reader_user";
+GRANT SELECT (id, type, kind) ON TABLE crops TO :"reader_user";
+SQL
+fi
 
 if [ "$(printf '%s' "${SMARTPOT_SEED_DEMO:-false}" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
     echo "SmartPot: cargando datos demo (demo@smartpot.app / SmartPot2026)"

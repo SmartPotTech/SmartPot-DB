@@ -8,6 +8,7 @@ IMAGE="${1:-smartpot-db-postgre:ci}"
 DEMO="${2:-false}"
 NAME="smartpot-db-postgre-validate"
 APP_PASS="app-password-ci-1234"
+READER_PASS="reader-ci-password-1234"
 ROOT_PASS="root-password-ci-123"
 
 cleanup() { docker rm -f "$NAME" >/dev/null 2>&1 || true; }
@@ -22,10 +23,12 @@ docker run -d --name "$NAME" \
   --security-opt no-new-privileges \
   -e POSTGRES_USER=smartpot-root -e POSTGRES_PASSWORD="$ROOT_PASS" -e POSTGRES_DB=smartpot \
   -e SMARTPOT_DB_USERNAME=smartpot -e SMARTPOT_DB_PASSWORD="$APP_PASS" -e SMARTPOT_SEED_DEMO="$DEMO" \
+  -e SMARTPOT_READER_PASSWORD="$READER_PASS" \
   "$IMAGE" >/dev/null
 
 # Las consultas de la aplicación usan el usuario smartpot; las de administración, la cuenta root del contenedor.
 app() { docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -qtA -v ON_ERROR_STOP=1 -U smartpot -d smartpot -c "$1"; }
+reader() { docker exec -e PGPASSWORD="$READER_PASS" "$NAME" psql -qtA -v ON_ERROR_STOP=1 -U smartpot_reader -d smartpot -c "$1"; }
 root() { docker exec "$NAME" psql -qtA -v ON_ERROR_STOP=1 -U smartpot-root -d smartpot -c "$1"; }
 migrate() { docker exec "$NAME" /opt/smartpot/migrate.sh; }
 
@@ -61,6 +64,10 @@ check "la restricción única por cultivo y tipo de actuador" \
   "$(app "INSERT INTO actuators (id,crop_id,type,active,created_at) VALUES ('0000000000000000000000a1','cropci','FAN',false,now()),('0000000000000000000000a2','cropci','FAN',false,now())" 2>&1 >/dev/null | grep -qi 'duplicate\|unique\|violates' && echo rechazado || echo aceptado)" "rechazado"
 
 migrate >/dev/null
+check "los agregados continuos incluyen lo no materializado"   "$(app "SELECT count(*) FROM timescaledb_information.continuous_aggregates WHERE materialized_only = false")" "3"
+check "el rol lector ve la telemetría" "$(reader "SELECT count(*) >= 0 FROM readings")" "t"
+check "el rol lector no ve el dueño del cultivo"   "$(reader 'SELECT owner_id FROM crops' 2>&1 >/dev/null | grep -qi 'permi\|denied' && echo denegado || echo permitido)" "denegado"
+check "el rol lector no escribe"   "$(reader "DELETE FROM readings" 2>&1 >/dev/null | grep -qi 'read-only\|permi\|denied' && echo denegado || echo permitido)" "denegado"
 check "la migración es idempotente (segunda corrida sin error)" "$(migrate >/dev/null 2>&1 && echo ok || echo err)" "ok"
 
 if [ "$DEMO" = "true" ]; then
