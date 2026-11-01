@@ -10,6 +10,12 @@ ENV POSTGRES_DB=smartpot \
     SMARTPOT_SEED_DEMO=false
 
 # El esquema y el seed los comparten el inicio de una base nueva y la migración de una existente.
+# La imagen de TimescaleDB 2.17.2 es de enero de 2025: se actualizan los paquetes de Alpine. Sus binarios en Go
+# arrastran una librería estándar vieja: timescaledb-tune y timescaledb-parallel-copy no se usan (01_init.sh fija la
+# configuración con ALTER SYSTEM) y gosu se reemplaza por su-exec (C, misma sintaxis) para que el entrypoint siga
+# preparando el directorio de datos como root y luego baje a postgres.
+RUN apk upgrade --no-cache     && apk add --no-cache su-exec     && rm -f /usr/local/bin/timescaledb-tune /usr/local/bin/timescaledb-parallel-copy              /docker-entrypoint-initdb.d/001_timescaledb_tune.sh     && ln -sf /sbin/su-exec /usr/local/bin/gosu
+
 COPY schema/schema.sql schema/demo.sql /opt/smartpot/
 COPY scripts/migrate.sh /opt/smartpot/migrate.sh
 COPY init/01_init.sh /docker-entrypoint-initdb.d/01_init.sh
