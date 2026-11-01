@@ -524,3 +524,20 @@ CREATE TABLE IF NOT EXISTS virtual_devices
     );
 CREATE UNIQUE INDEX IF NOT EXISTS virtual_devices_crop ON virtual_devices (crop_id);
 CREATE INDEX IF NOT EXISTS virtual_devices_owner ON virtual_devices (owner_id);
+
+-- Conexiones personales (clientes MCP y similares). Solo se guarda el SHA-256 del token; el prefijo visible permite
+-- reconocerlo en la PWA. READ solo consulta; CONTROL además crea, edita y acciona. Revocar es borrar la fila.
+CREATE TABLE IF NOT EXISTS access_tokens
+(
+    id           CHAR(24) PRIMARY KEY,
+    user_id      CHAR(24)    NOT NULL,
+    name         TEXT        NOT NULL,
+    token_hash   TEXT        NOT NULL,
+    prefix       TEXT        NOT NULL,
+    scope        TEXT        NOT NULL CHECK (scope IN ('READ', 'CONTROL')),
+    created_at   TIMESTAMPTZ NOT NULL,
+    last_used_at TIMESTAMPTZ,
+    expires_at   TIMESTAMPTZ
+);
+CREATE UNIQUE INDEX IF NOT EXISTS access_tokens_hash_key ON access_tokens (token_hash);
+CREATE INDEX IF NOT EXISTS access_tokens_user ON access_tokens (user_id);
