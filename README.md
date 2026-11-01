@@ -59,6 +59,21 @@ Copia `.env.example` a `.env` y complétalo. `SMARTPOT_DB_PASSWORD` debe tener a
 
 ## Uso
 
+### Despliegue en un comando
+
+La imagen es pública: `ghcr.io/smartpottech/smartpot-db-postgre`. La plataforma completa, con este servicio incluido, se
+levanta con un solo comando y sin descargar el código:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/SmartPotTech/.github/main/docker/demo-beta/compose.yaml | docker compose -f - up -d --wait
+```
+
+Abre http://localhost:5173 e ingresa con `demo@smartpot.app` / `SmartPot2026`. Se detiene con
+`docker compose -p smartpot-demo-beta down` (con `-v` borra también los datos). Más detalle en la
+[demo beta](https://github.com/SmartPotTech/.github/tree/main/docker/demo-beta).
+
+### Desde el código con Docker Compose
+
 ```sh
 cp .env.example .env     # completa las contraseñas
 docker compose up -d --build
@@ -95,20 +110,17 @@ Lo mismo corre en CI al construir la imagen (con y sin datos demo).
 Cada push a `main` construye y publica la imagen en GHCR (`ghcr.io/smartpottech/smartpot-db-postgre`) y, con los
 secretos de Docker Hub, su réplica. El despliegue a producción lo coordina el workflow central de `.github`.
 
-## Hoja de Ruta Industrial: Roles Desacoplados, Compresión Zstd y Continuous Aggregates
+## Series temporales y roles
 
-Como parte del **Plan Maestro de Maximización del Stack B (demo-beta)**, la base de datos incorpora afinaciones de rendimiento masivo para series temporales:
-
-1. **Separación de Roles por Garantía de Durabilidad**:
-   - `smartpot_ingest`: `ALTER ROLE smartpot_ingest SET synchronous_commit = 'off';` con `commit_delay = 10000;`. Dedicado al pool `CopyFrom` de telemetría de la API, capaz de superar 150,000 inserciones/segundo sin bloqueos de disco.
-   - `smartpot_app`: `ALTER ROLE smartpot_app SET synchronous_commit = 'on';` para operaciones transaccionales críticas (usuarios, dispositivos, órdenes, auditoría).
-2. **Aislamiento Multi-Tenant con Row-Level Security (RLS)**:
-   - Políticas `ENABLE ROW LEVEL SECURITY` en tablas de entidades de negocio validadas mediante `current_setting('app.current_tenant_id', true)`.
-3. **Hipertablas y Compresión Columnar Zstandard**:
-   - Particionamiento temporal optimizado: `chunk_time_interval => INTERVAL '1 day'`.
-   - Política de compresión columnar nativa a las 12 horas segmentada por `crop_id` y ordenada por `measured_at DESC`.
-4. **Vistas Materializadas Continuas en Cascada**:
-   - `readings_1m`, `readings_15m` y `readings_1h` con actualización periódica automática para resolver agregaciones y gráficos analíticos en $< 1.5\text{ ms}$.
+- **Hipertabla `readings`** con chunks de 1 día, compresión columnar a las 12 horas (segmentada por cultivo y ordenada
+  por fecha) y retención configurable.
+- **Agregados continuos** `readings_1m`, `readings_15m` y `readings_1h` con datos en tiempo real
+  (`materialized_only = false`): la API los usa para las gráficas y el promedio se pondera por la cantidad de lecturas.
+- **Roles**: `smartpot` para la aplicación y, opcional, `smartpot_reader` de solo lectura (lo usa el entrenador por
+  ADBC). El rol `smartpot_ingest` se crea pero la API todavía no lo usa: la ingesta por lotes con `COPY` corre con el
+  rol de la aplicación.
+- **RLS** en `crops` por `app.current_tenant_id`; hoy la API no fija esa variable, así que el aislamiento entre cuentas
+  lo garantiza la API en cada consulta.
 
 ## Licencia
 
