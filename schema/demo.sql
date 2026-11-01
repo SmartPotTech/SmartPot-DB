@@ -4,7 +4,7 @@
 
 -- Cuenta demo (contraseña SmartPot2026, BCrypt coste 12).
 INSERT INTO users (id, name, last_name, email, password_hash, role, created_at, updated_at)
-VALUES ('66f5a1000000000000000001', 'Mariangel', 'Demo', 'demo@smartpot.app',
+VALUES ('66f5a1000000000000000001', 'Usuario', 'Demo', 'demo@smartpot.app',
         '$2a$12$/ndyKLiS20yVdLYjL3bEF.wGnZWIpD6ehw3AAsZw4aBRGTnPh5/UC', 'USER',
         now() - interval '72 hours', now() - interval '72 hours') ON CONFLICT (id) DO NOTHING;
 
