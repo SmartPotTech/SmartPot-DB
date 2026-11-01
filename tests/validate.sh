@@ -43,7 +43,9 @@ done
 fail=0
 check() { if [ "$2" = "$3" ]; then echo "OK   $1"; else echo "FAIL $1 (esperado $3, obtenido $2)"; fail=1; fi; }
 
-check "diez tablas" "$(app "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")" "10"
+check "once tablas" "$(app "SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")" "11"
+check "el alcance de una conexión se restringe" \
+  "$(app "INSERT INTO access_tokens (id,user_id,name,token_hash,prefix,scope,created_at) VALUES ('0000000000000000000000a1','u','x','h','spt_x','ADMIN',now())" 2>&1 >/dev/null | grep -qi 'check\|violates' && echo rechazado || echo aceptado)" "rechazado"
 check "readings es una hipertabla de TimescaleDB" \
   "$(app "SELECT count(*) FROM timescaledb_information.hypertables WHERE hypertable_name='readings'")" "1"
 check "readings tiene política de retención" \
