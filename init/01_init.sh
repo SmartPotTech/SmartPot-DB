@@ -12,7 +12,7 @@ READER_USER="${SMARTPOT_READER_USERNAME:-smartpot_reader}"
 READER_PASSWORD="${SMARTPOT_READER_PASSWORD:-}"
 
 if [ "${#APP_PASSWORD}" -lt 16 ]; then
-    echo "SMARTPOT_DB_PASSWORD debe tener al menos 16 caracteres" >&2
+    echo "SMARTPOT_DB_PASSWORD must be at least 16 characters" >&2
     exit 1
 fi
 
@@ -20,10 +20,10 @@ psql_super() {
     psql -v ON_ERROR_STOP=1 --no-psqlrc --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" "$@"
 }
 
-echo "SmartPot: aplicando el esquema en la base '$POSTGRES_DB'"
+echo "SmartPot: applying schema to database '$POSTGRES_DB'"
 psql_super -f /opt/smartpot/schema.sql
 
-echo "SmartPot: configurando roles diferenciados ('$APP_USER' transaccional y '$INGEST_USER' ingesta asíncrona)"
+echo "SmartPot: configuring roles ('$APP_USER' transactional and '$INGEST_USER' async ingestion)"
 psql_super --set=app_user="$APP_USER" --set=app_password="$APP_PASSWORD" --set=ingest_user="$INGEST_USER" --set=ingest_password="$INGEST_PASSWORD" --set=app_db="$POSTGRES_DB" <<'SQL'
 -- 1. Rol de la aplicación transaccional (synchronous_commit = on)
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'app_user', :'app_password')
@@ -72,10 +72,10 @@ SQL
 # y si es real o virtual (ni dueños, ni nombres, ni claves de dispositivo).
 if [ -n "$READER_PASSWORD" ]; then
     if [ "${#READER_PASSWORD}" -lt 16 ]; then
-        echo "SMARTPOT_READER_PASSWORD debe tener al menos 16 caracteres" >&2
+        echo "SMARTPOT_READER_PASSWORD must be at least 16 characters" >&2
         exit 1
     fi
-    echo "SmartPot: creando el rol de solo lectura '$READER_USER'"
+    echo "SmartPot: creating read-only role '$READER_USER'"
     psql_super --set=reader_user="$READER_USER" --set=reader_password="$READER_PASSWORD" --set=app_db="$POSTGRES_DB" <<'SQL'
 SELECT format('CREATE ROLE %I LOGIN PASSWORD %L', :'reader_user', :'reader_password')
 WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'reader_user')
@@ -93,10 +93,10 @@ SQL
 fi
 
 if [ "$(printf '%s' "${SMARTPOT_SEED_DEMO:-false}" | tr '[:upper:]' '[:lower:]')" = "true" ]; then
-    echo "SmartPot: cargando datos demo (demo@smartpot.app / SmartPot2026)"
+    echo "SmartPot: loading demo data (demo@smartpot.app / SmartPot2026)"
     psql_super -f /opt/smartpot/demo.sql
 else
-    echo "SmartPot: SMARTPOT_SEED_DEMO=false, la base queda vacía"
+    echo "SmartPot: SMARTPOT_SEED_DEMO=false, database left empty"
 fi
 
-echo "SmartPot: inicialización completa"
+echo "SmartPot: initialization complete"

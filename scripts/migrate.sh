@@ -7,10 +7,10 @@
 # esquema; la clave no aparece en la línea de comandos.
 set -eu
 
-echo "SmartPot: aplicando el esquema en la base '${POSTGRES_DB:-smartpot}'"
+echo "SmartPot: applying schema to database '${POSTGRES_DB:-smartpot}'"
 psql -v ON_ERROR_STOP=1 --no-psqlrc \
     --username "${POSTGRES_USER:-postgres}" \
     --dbname "${POSTGRES_DB:-smartpot}" \
     -f /opt/smartpot/schema.sql
 
-echo "SmartPot: esquema al día"
+echo "SmartPot: schema is up to date"

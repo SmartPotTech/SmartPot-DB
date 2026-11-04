@@ -4,7 +4,7 @@
 
 -- Cuenta demo (contraseña SmartPot2026, BCrypt coste 12).
 INSERT INTO users (id, name, last_name, email, password_hash, role, created_at, updated_at)
-VALUES ('66f5a1000000000000000001', 'Usuario', 'Demo', 'demo@smartpot.app',
+VALUES ('66f5a1000000000000000001', 'Demo', 'User', 'demo@smartpot.app',
         '$2a$12$/ndyKLiS20yVdLYjL3bEF.wGnZWIpD6ehw3AAsZw4aBRGTnPh5/UC', 'USER',
         now() - interval '72 hours', now() - interval '72 hours') ON CONFLICT (id) DO NOTHING;
 
@@ -12,7 +12,7 @@ VALUES ('66f5a1000000000000000001', 'Usuario', 'Demo', 'demo@smartpot.app',
 -- pleno sol. Las claves de dispositivo están cifradas con la clave AES de demostración (SMARTPOT_AES_KEY del
 -- entorno demo): descifran a demo-lettuce-device-key-2026 y demo-tomato-device-key-2026.
 INSERT INTO crops (id, owner_id, name, type, kind, form, placement, automation_enabled, device, created_at, updated_at)
-VALUES ('66f5a1000000000000000101', '66f5a1000000000000000001', 'Lechugas del balcón', 'LETTUCE', 'REAL', 'NFT',
+VALUES ('66f5a1000000000000000101', '66f5a1000000000000000001', 'Balcony Lettuce', 'LETTUCE', 'REAL', 'NFT',
         jsonb_build_object('setting', 'OUTDOOR', 'exposure', 'PARTIAL_SUN',
                            'location',
                            jsonb_build_object('name', 'Medellín', 'latitude', 6.2442, 'longitude', -75.5812)),
@@ -25,7 +25,7 @@ VALUES ('66f5a1000000000000000101', '66f5a1000000000000000001', 'Lechugas del ba
                            'lastSeenAt',
                            to_char((now() - interval '1 hour') AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')),
         now() - interval '72 hours', now() - interval '72 hours'),
-       ('66f5a1000000000000000102', '66f5a1000000000000000001', 'Tomates cherry', 'TOMATO', 'REAL', 'POT',
+       ('66f5a1000000000000000102', '66f5a1000000000000000001', 'Cherry Tomatoes', 'TOMATO', 'REAL', 'POT',
         jsonb_build_object('setting', 'OUTDOOR', 'exposure', 'FULL_SUN',
                            'location',
                            jsonb_build_object('name', 'Medellín', 'latitude', 6.2442, 'longitude', -75.5812)),
@@ -82,18 +82,18 @@ INSERT INTO commands (id, crop_id, actuator_id, actuator_type, action, duration_
                       message, created_at, sent_at, completed_at)
 VALUES ('66f5a1000000000000003001', '66f5a1000000000000000101', '66f5a1000000000000001001', 'WATER_PUMP', 'ACTIVATE',
         15,
-        'EXECUTED', 'AGENT', 'El sustrato está seco: riego automático.', 'Bomba encendida 15 s',
+        'EXECUTED', 'AGENT', 'Soil moisture below optimal minimum: automatic irrigation.', 'Water pump turned on for 15 s',
         now() - interval '5 hours', now() - interval '5 hours', now() - interval '5 hours'),
        ('66f5a1000000000000003002', '66f5a1000000000000000101', '66f5a1000000000000001001', 'WATER_PUMP', 'ACTIVATE',
         30,
-        'EXECUTED', 'USER', '', 'Bomba encendida 30 s',
+        'EXECUTED', 'USER', '', 'Water pump turned on for 30 s',
         now() - interval '20 hours', now() - interval '20 hours',
         now() - interval '20 hours') ON CONFLICT (id) DO NOTHING;
 
 -- Dos notificaciones (bienvenida y una acción del asistente de IA).
 INSERT INTO notifications (id, user_id, crop_id, type, title, message, read, created_at)
-VALUES ('66f5a1000000000000004001', '66f5a1000000000000000001', NULL, 'INFO', '¡Bienvenido a SmartPot!',
-        'Crea tu primer cultivo, real o virtual, para empezar a monitorearlo.', true, now() - interval '72 hours'),
+VALUES ('66f5a1000000000000004001', '66f5a1000000000000000001', NULL, 'INFO', 'Welcome to SmartPot!',
+        'Create your first crop, real or virtual, to start monitoring it.', true, now() - interval '72 hours'),
        ('66f5a1000000000000004002', '66f5a1000000000000000001', '66f5a1000000000000000101', 'AI',
-        'El asistente actuó en Lechugas del balcón', 'El sustrato está seco: riego automático.', false,
+        'Assistant acted on Balcony Lettuce', 'Soil moisture below optimal minimum: automatic irrigation.', false,
         now() - interval '5 hours') ON CONFLICT (id) DO NOTHING;
