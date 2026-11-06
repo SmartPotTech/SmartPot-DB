@@ -62,13 +62,13 @@ Copy `.env.example` to `.env` and fill in the secrets. `SMARTPOT_DB_PASSWORD` mu
 
 #### One-Command Deployment
 
-The image is public: `ghcr.io/smartpottech/smartpot-db-postgre`. You can launch the complete platform, including this service, with a single command and without cloning the repository:
+The image is public: `ghcr.io/smartpottech/smartpot-db`. You can launch the complete platform, including this service, with a single command and without cloning the repository:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/SmartPotTech/.github/main/docker/demo-beta/compose.yaml | docker compose -f - up -d --wait
+curl -fsSL https://raw.githubusercontent.com/SmartPotTech/.github/main/docker/demo/compose.yaml | docker compose -f - up -d --wait
 ```
 
-Open http://localhost:5173 and sign in with `demo@smartpot.app` / `SmartPot2026`. Stop it with `docker compose -p smartpot-demo-beta down` (add `-v` to remove volumes). See the [beta demo](https://github.com/SmartPotTech/.github/tree/main/docker/demo-beta) for details.
+Open http://localhost:5173 and sign in with `demo@smartpot.app` / `SmartPot2026`. Stop it with `docker compose -p smartpot-demo down` (add `-v` to remove volumes). See the [demo](https://github.com/SmartPotTech/.github/tree/main/docker/demo) for details.
 
 #### From Source with Docker Compose
 
@@ -88,7 +88,7 @@ postgres://smartpot:<APP_PASSWORD>@db-smartpot:5432/smartpot?sslmode=disable
 The schema is idempotent. After updating the image, apply any new tables, indexes, or policies without touching existing data:
 
 ```sh
-docker exec smartpot-db-postgre /opt/smartpot/migrate.sh
+docker exec smartpot-db /opt/smartpot/migrate.sh
 ```
 
 ### Testing
@@ -176,13 +176,13 @@ Copia `.env.example` a `.env` y complétalo. `SMARTPOT_DB_PASSWORD` debe tener a
 
 #### Despliegue en un comando
 
-La imagen es pública: `ghcr.io/smartpottech/smartpot-db-postgre`. La plataforma completa, con este servicio incluido, se levanta con un solo comando y sin descargar el código:
+La imagen es pública: `ghcr.io/smartpottech/smartpot-db`. La plataforma completa, con este servicio incluido, se levanta con un solo comando y sin descargar el código:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/SmartPotTech/.github/main/docker/demo-beta/compose.yaml | docker compose -f - up -d --wait
+curl -fsSL https://raw.githubusercontent.com/SmartPotTech/.github/main/docker/demo/compose.yaml | docker compose -f - up -d --wait
 ```
 
-Abre http://localhost:5173 e ingresa con `demo@smartpot.app` / `SmartPot2026`. Se detiene con `docker compose -p smartpot-demo-beta down` (con `-v` borra también los datos). Más detalle en la [demo beta](https://github.com/SmartPotTech/.github/tree/main/docker/demo-beta).
+Abre http://localhost:5173 e ingresa con `demo@smartpot.app` / `SmartPot2026`. Se detiene con `docker compose -p smartpot-demo down` (con `-v` borra también los datos). Más detalle en la [demo](https://github.com/SmartPotTech/.github/tree/main/docker/demo).
 
 #### Desde el código con Docker Compose
 
@@ -202,7 +202,7 @@ postgres://smartpot:<APP_PASSWORD>@db-smartpot:5432/smartpot?sslmode=disable
 El esquema es idempotente. Tras actualizar la imagen, aplica las tablas, índices o políticas nuevas sin tocar los datos:
 
 ```sh
-docker exec smartpot-db-postgre /opt/smartpot/migrate.sh
+docker exec smartpot-db /opt/smartpot/migrate.sh
 ```
 
 ### Pruebas
