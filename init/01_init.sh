@@ -46,6 +46,11 @@ WHERE EXISTS (SELECT 1 FROM pg_roles WHERE rolname = :'ingest_user')
 ALTER ROLE :"ingest_user" SET synchronous_commit = 'off';
 ALTER ROLE :"ingest_user" SET commit_delay = 10000;
 
+-- La base y el esquema dejan de heredarse de PUBLIC antes de conceder nada: sin estos REVOKE, cualquier rol con
+-- LOGIN podría conectarse y usar el esquema público sin pasar por los permisos que se definen abajo.
+REVOKE ALL ON DATABASE :"app_db" FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+
 -- Permisos DML para la API y rol transaccional
 GRANT CONNECT ON DATABASE :"app_db" TO :"app_user", :"ingest_user";
 GRANT USAGE ON SCHEMA public TO :"app_user", :"ingest_user";
@@ -54,9 +59,9 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO :"app_user";
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO :"app_user";
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO :"app_user";
 
--- Permisos específicos para el rol de ingesta sobre telemetría
+-- Permisos específicos para el rol de ingesta sobre telemetría: solo lectura y escritura de readings. No recibe
+-- secuencias porque la API genera los ids ObjectId y los inserta explícitamente, así que nextval no hace falta.
 GRANT SELECT, INSERT ON TABLE readings TO :"ingest_user";
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO :"ingest_user";
 
 -- Ajustes de rendimiento del motor para carga mixta IoT y telemetría de alta frecuencia
 ALTER SYSTEM SET shared_buffers = '256MB';
@@ -65,7 +70,9 @@ ALTER SYSTEM SET effective_cache_size = '768MB';
 ALTER SYSTEM SET wal_compression = 'zstd';
 ALTER SYSTEM SET checkpoint_completion_target = '0.9';
 ALTER SYSTEM SET random_page_cost = '1.1';
-SELECT pg_reload_conf();
+-- shared_buffers es un parámetro de contexto postmaster y no se aplica con reload: el entrypoint detiene este
+-- servidor temporal y arranca el definitivo, que es donde los valores entran en vigor. Recargar aquí haría que
+-- postgresql.auto.conf quedara marcado como erróneo ("cannot be changed without restarting the server").
 SQL
 
 # Rol opcional de solo lectura para el entrenador de la IA: ve la telemetría y, de los cultivos, solo el id, la especie
@@ -89,6 +96,9 @@ GRANT CONNECT ON DATABASE :"app_db" TO :"reader_user";
 GRANT USAGE ON SCHEMA public TO :"reader_user";
 GRANT SELECT ON TABLE readings TO :"reader_user";
 GRANT SELECT (id, type, kind) ON TABLE crops TO :"reader_user";
+-- La vista con security_barrier es la única ruta que expone los cultivos al entrenador con el filtro de especie
+-- y tipo ya resuelto; conceder SELECT sobre crops directamente le abriría owner_id y device.
+GRANT SELECT ON TABLE trainer_readings TO :"reader_user";
 SQL
 fi
 

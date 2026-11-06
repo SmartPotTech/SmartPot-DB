@@ -23,5 +23,8 @@ RUN chmod 0755 /opt/smartpot/migrate.sh /docker-entrypoint-initdb.d/01_init.sh
 
 EXPOSE 5432
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=40s --retries=5 \
-    CMD pg_isready -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-smartpot}" || exit 1
+# El chequeo usa TCP en 127.0.0.1 y no el socket UNIX a propósito: durante la inicialización el entrypoint levanta
+# un servidor temporal que solo escucha por socket, así que un pg_isready por socket lo declararía sano antes de que
+# el servidor definitivo aplique la configuración y abra el puerto.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=5 \
+    CMD pg_isready -h 127.0.0.1 -p 5432 -U "${POSTGRES_USER:-smartpot-root}" -d "${POSTGRES_DB:-smartpot}" || exit 1
