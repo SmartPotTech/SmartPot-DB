@@ -142,6 +142,8 @@ The local compose stack tags the image as `ghcr.io/smartpottech/smartpot-db-post
 - **Roles**: `smartpot` has DML on all tables and no DDL. `smartpot_ingest` has only `SELECT` and `INSERT` on `readings`. `smartpot_reader` has `SELECT` on `readings`, `SELECT` on `trainer_readings`, and column-level `SELECT` on `crops(id, type, kind)`. `PUBLIC` has no `CONNECT` on the database and no `USAGE` on schema `public`. The administrator owns the schema and is never used by the API.
 - **RLS** on `crops` using `app.current_tenant_id`. Tenant isolation is enforced by the API on every query and reinforced by the RLS policy.
 
+The [interactive diagrams](docs/diagrams/interactive/README.md#english) show the full relational schema and the TimescaleDB lifecycle of a reading, in English and Spanish, with links to the exact source lines.
+
 ### License
 
 [MIT](LICENSE).
@@ -285,6 +287,8 @@ El compose local etiqueta la imagen como `ghcr.io/smartpottech/smartpot-db-postg
 - **Agregados continuos** `readings_1m`, `readings_15m` y `readings_hourly` con datos en tiempo real (`timescaledb.materialized_only = false`). Cada uno tiene `reading_count` y las columnas `count_temperature`, `count_humidity`, `count_brightness`, `count_ph`, `count_tds`, `count_atmosphere` y `count_soil_moisture`. Cada uno tiene además su propia política de retención de 365 días.
 - **Roles**: `smartpot` tiene DML sobre todas las tablas y no tiene DDL. `smartpot_ingest` solo tiene `SELECT` e `INSERT` sobre `readings`. `smartpot_reader` tiene `SELECT` sobre `readings`, `SELECT` sobre `trainer_readings` y `SELECT` a nivel de columna sobre `crops(id, type, kind)`. `PUBLIC` no tiene `CONNECT` sobre la base ni `USAGE` sobre el esquema `public`. La cuenta administradora es la dueña del esquema y nunca la usa la API.
 - **RLS** en `crops` por `app.current_tenant_id`. La API aplica el aislamiento entre cuentas en cada consulta y la política de RLS lo refuerza.
+
+Los [diagramas interactivos](docs/diagrams/interactive/README.md#español) muestran el esquema relacional completo y el ciclo de vida de una lectura en TimescaleDB, en español e inglés, con enlaces a las líneas exactas del código.
 
 ### Licencia
 
