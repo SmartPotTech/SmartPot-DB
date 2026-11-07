@@ -43,10 +43,16 @@ docker run -d --name "$NAME" \
   "$IMAGE" >/dev/null
 
 # Las consultas de la aplicación usan el usuario smartpot; las de administración, la cuenta root del contenedor.
-# Los roles de aplicación se conectan por TCP para comprobar también la contraseña y el pg_hba definitivo.
-app() { docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h 127.0.0.1 -qtA -v ON_ERROR_STOP=1 -U smartpot -d smartpot -c "$1"; }
-reader() { docker exec -e PGPASSWORD="$READER_PASS" "$NAME" psql -h 127.0.0.1 -qtA -v ON_ERROR_STOP=1 -U smartpot_reader -d smartpot -c "$1"; }
-ingest() { docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h 127.0.0.1 -qtA -v ON_ERROR_STOP=1 -U smartpot_ingest -d smartpot -c "$1"; }
+# Los roles de aplicación se conectan por TCP a la IP del contenedor (no a 127.0.0.1, que el pg_hba de la imagen
+# deja en trust) para comprobar también la contraseña y el pg_hba definitivo.
+DB_HOST="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$NAME" 2>/dev/null | tr -d '\r')"
+if [ -z "$DB_HOST" ]; then
+    echo "FAIL could not determine the container IP address" >&2
+    exit 1
+fi
+app() { docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h "$DB_HOST" -qtA -v ON_ERROR_STOP=1 -U smartpot -d smartpot -c "$1"; }
+reader() { docker exec -e PGPASSWORD="$READER_PASS" "$NAME" psql -h "$DB_HOST" -qtA -v ON_ERROR_STOP=1 -U smartpot_reader -d smartpot -c "$1"; }
+ingest() { docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h "$DB_HOST" -qtA -v ON_ERROR_STOP=1 -U smartpot_ingest -d smartpot -c "$1"; }
 root() { docker exec "$NAME" psql -qtA -v ON_ERROR_STOP=1 -U smartpot-root -d smartpot -c "$1"; }
 root_db() { docker exec "$NAME" psql -qtA -v ON_ERROR_STOP=1 -U smartpot-root -d "$1" -c "$2"; }
 restore_db() { root_db smartpot_restore_test "$1"; }
@@ -58,7 +64,7 @@ migrate() { docker exec "$NAME" /opt/smartpot/migrate.sh; }
 ready=0
 attempts=0
 while [ "$attempts" -lt 60 ]; do
-    if docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h 127.0.0.1 -tA -U smartpot -d smartpot -c "SELECT 1" >/dev/null 2>&1; then
+    if docker exec -e PGPASSWORD="$APP_PASS" "$NAME" psql -h "$DB_HOST" -tA -U smartpot -d smartpot -c "SELECT 1" >/dev/null 2>&1; then
         ready=1
         break
     fi
@@ -105,6 +111,8 @@ check() {
 }
 
 first_line() { printf '%s\n' "$1" | head -n 1; }
+
+check "container healthcheck is healthy" "$health" "healthy"
 
 # Ejecuta una consulta con el rol indicado y devuelve su salida, o la primera línea del error si falla. Evita que
 # un fallo inesperado de psql aborte el script sin imprimir el FAIL correspondiente.
@@ -336,6 +344,7 @@ NOTIF_BAD=0123456789abcdef0123457a
 PH_BAD=0123456789abcdef0123457b
 HUM_BAD=0123456789abcdef0123457c
 NULL_READ=0123456789abcdef0123457d
+READER_READ=0123456789abcdef0123457e
 NEW_DUP_CMD=0123456789abcdef01234580
 REJECT_CMD=0123456789abcdef01234581
 BAD_USER=zzzzzzzzzzzzzzzzzzzzzzzz
@@ -495,6 +504,14 @@ check "deleting a user cascades access tokens" \
 # Permisos de los tres roles de la plataforma y de un rol sin privilegios
 # ------------------------------------------------------------------------------
 
+# La contraseña se valida por TCP contra la IP del contenedor, no por el socket local.
+if docker exec -e PGPASSWORD=wrong-password "$NAME" psql -h "$DB_HOST" -qtA -U smartpot -d smartpot -c "SELECT 1" >/dev/null 2>&1; then
+    wrong_app_auth=accepted
+else
+    wrong_app_auth=rejected
+fi
+check "wrong application password is rejected" "$wrong_app_auth" "rejected"
+
 # La agregación en tiempo real incluye lo aún no materializado; tras refrescar debe devolver filas tanto con el
 # seed demo como con las lecturas de prueba. Se ejecuta antes de tocar la compresión.
 root "CALL refresh_continuous_aggregate('readings_1m', NULL, NULL)" >/dev/null
@@ -515,11 +532,19 @@ expect_rejected "reader role cannot select access tokens" reader \
     "SELECT count(*) FROM access_tokens" "permission denied"
 expect_rejected "reader role cannot select password reset tokens" reader \
     "SELECT count(*) FROM password_reset_tokens" "permission denied"
+check "reader role has no INSERT grant on readings" \
+    "$(sql_value root "SELECT has_table_privilege('smartpot_reader','readings','INSERT')")" "f"
+expect_rejected "reader role cannot insert readings" reader \
+    "INSERT INTO readings (id,crop_id,measured_at,source,temperature) VALUES ('$READER_READ','$FIX_CROP',now(),'MQTT',23.5)" "read-only transaction"
 
 expect_ok "ingest role inserts a reading" ingest \
     "INSERT INTO readings (id,crop_id,measured_at,source,temperature) VALUES ('$INGEST_READ','$FIX_CROP',now(),'HTTP',23.5) RETURNING 'ok'" "ok"
 expect_rejected "ingest role cannot insert commands" ingest \
     "INSERT INTO commands (id,crop_id,actuator_id,actuator_type,action,status,source,created_at) VALUES ('$DURATION_BAD','$FIX_CROP','$FIX_ACT','FAN','ACTIVATE','EXECUTED','USER',now())" "permission denied"
+expect_rejected "ingest role cannot update readings" ingest \
+    "UPDATE readings SET temperature=20 WHERE id='$INGEST_READ'" "permission denied"
+expect_rejected "ingest role cannot delete readings" ingest \
+    "DELETE FROM readings WHERE id='$INGEST_READ'" "permission denied"
 expect_rejected "ingest role cannot select users" ingest \
     "SELECT count(*) FROM users" "permission denied"
 
@@ -579,7 +604,9 @@ check "compression recovery keeps the fixture readings" \
 # ------------------------------------------------------------------------------
 
 DUMP_PATH=/tmp/smartpot-drp.dump
+READINGS_SIGNATURE_SQL="SELECT md5(string_agg(id || ':' || coalesce(temperature::text,'') || ':' || coalesce(ph::text,''), ',' ORDER BY id)) FROM readings"
 source_count=$(sql_value root "SELECT count(*) FROM readings")
+source_signature=$(sql_value root "$READINGS_SIGNATURE_SQL")
 
 if dump_out=$(docker exec "$NAME" pg_dump -U smartpot-root -d smartpot -Fc -f "$DUMP_PATH" 2>&1); then
     dump_rc=0
@@ -619,6 +646,8 @@ check "timescaledb_post_restore succeeds" \
 
 check "restored readings count matches the source" \
     "$(sql_value restore_db "SELECT count(*) FROM readings")" "$source_count"
+check "restored readings keep the source signature" \
+    "$(sql_value restore_db "$READINGS_SIGNATURE_SQL")" "$source_signature"
 check "restored database has one readings hypertable" \
     "$(sql_value restore_db "SELECT count(*) FROM timescaledb_information.hypertables WHERE hypertable_schema='public' AND hypertable_name='readings'")" "1"
 check "restored database has three continuous aggregates" \

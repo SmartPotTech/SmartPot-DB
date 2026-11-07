@@ -121,7 +121,7 @@ If the `readings` constraints are missing and compression is enabled, the script
 
 ### Testing
 
-`sh tests/validate.sh <image> true|false` runs 102 checks with the demo seed and 99 without it. The suite covers the schema, hypertable, compression and retention policies, constraints, the 12 foreign keys, the unique in-flight command index, continuous aggregates, role privileges, the `trainer_readings` view, idempotent migration, the destructive compression-recovery path, and a full `pg_dump` / `pg_restore` cycle.
+`sh tests/validate.sh <image> true|false` runs 109 checks with the demo seed and 106 without it. The suite covers the schema, hypertable, compression and retention policies, constraints, the 12 foreign keys, the unique in-flight command index, continuous aggregates, role privileges and password authentication, write denials for the read-only and ingest roles, the `trainer_readings` view, idempotent migration, the destructive compression-recovery path, and a full `pg_dump` / `pg_restore` cycle with a checksum of the restored readings.
 
 ```sh
 sh tests/validate.sh smartpot-db-postgre:ci true
@@ -265,7 +265,7 @@ Si faltan las restricciones de `readings` y la compresión está activa, el scri
 
 ### Pruebas
 
-`sh tests/validate.sh <imagen> true|false` ejecuta 102 comprobaciones con los datos demo y 99 sin ellos. La suite cubre el esquema, la hipertabla, las políticas de compresión y retención, las restricciones, las 12 llaves foráneas, el índice único de comandos en vuelo, los agregados continuos, los privilegios de los roles, la vista `trainer_readings`, la migración idempotente, la ruta destructiva de recuperación de compresión y un ciclo completo de `pg_dump` / `pg_restore`.
+`sh tests/validate.sh <imagen> true|false` ejecuta 109 comprobaciones con los datos demo y 106 sin ellos. La suite cubre el esquema, la hipertabla, las políticas de compresión y retención, las restricciones, las 12 llaves foráneas, el índice único de comandos en vuelo, los agregados continuos, los privilegios de los roles y la autenticación por contraseña, la denegación de escritura para los roles de solo lectura e ingesta, la vista `trainer_readings`, la migración idempotente, la ruta destructiva de recuperación de compresión y un ciclo completo de `pg_dump` / `pg_restore` con checksum de las lecturas restauradas.
 
 ```sh
 sh tests/validate.sh smartpot-db-postgre:ci true
