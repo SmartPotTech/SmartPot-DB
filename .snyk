@@ -1,0 +1,5 @@
+# Snyk (https://snyk.io) policy file
+version: v1.25.0
+# Mitigated: TimescaleDB upstream CLI binaries (/usr/local/bin/gosu, timescaledb-tune,
+# timescaledb-parallel-copy) are stripped in Dockerfile layer and replaced with su-exec.
+ignore: {}
