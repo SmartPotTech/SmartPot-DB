@@ -59,6 +59,68 @@ The redundant index `readings_crop_measured` was removed. The covering index `re
 
 The complete schema lives in [`schema/schema.sql`](schema/schema.sql). It is the single source of truth and is fully idempotent.
 
+#### Architecture & Topology Diagram
+
+```mermaid
+flowchart TB
+  subgraph ingest["Telemetry Ingest Layer"]
+    api["SmartPot-API (Go 1.27.3)<br/>Role: smartpot / smartpot_ingest<br/>Batch pgx.CopyFrom every 10ms/100 readings"]
+  end
+
+  subgraph container["SmartPot-DB Container (TimescaleDB 2.17.2-pg17)"]
+    direction TB
+    subgraph hardening["Container Security & Health"]
+      hc["TCP Healthcheck 127.0.0.1:5432<br/>--start-period=20s --interval=15s<br/>Multi-stage scratch / Non-root postgres"]
+    end
+
+    subgraph hypertable["readings Hypertable (Time-Series Partitioning)"]
+      direction TB
+      raw["Hot Chunks (Uncompressed)<br/>1-Day Time Partitions · Segmented by crop_id"]
+      comp["Compressed Chunks (Columnar)<br/>Compression Policy: age > 12 Hours<br/>ORDER BY measured_at DESC"]
+      ret["Data Retention Policy<br/>Drop chunks older than 365 Days"]
+      raw -->|after 12h| comp
+      comp -->|after 365d| ret
+    end
+
+    subgraph caggs["Real-Time Continuous Aggregates (CAGGs)"]
+      direction TB
+      cagg1m["readings_1m (1-Minute Buckets)<br/>reading_count + 7 sensor metrics"]
+      cagg15m["readings_15m (15-Minute Buckets)<br/>Interpolated LTTB Time Series"]
+      cagg1h["readings_hourly (Hourly Buckets)<br/>Historical Agronomic Trends"]
+    end
+
+    subgraph roles["Least-Privilege Database Roles"]
+      direction LR
+      r_app["smartpot<br/>DML on all public tables<br/>No DDL privileges"]
+      r_ingest["smartpot_ingest<br/>SELECT & INSERT only<br/>on readings hypertable"]
+      r_reader["smartpot_reader<br/>SELECT on readings & trainer_readings view<br/>Column-level crops(id, type, species)"]
+    end
+  end
+
+  subgraph consumers["Analytics & ML Consumers"]
+    direction LR
+    pwa["SmartPot-Web (SolidJS)<br/>Queries CAGGs via API"]
+    trainer["SmartPot-Trainer (Python)<br/>ADBC Driver via smartpot_reader"]
+  end
+
+  api -->|pgx pool| r_app
+  api -->|optional minimal ingest| r_ingest
+  r_app --> hypertable
+  hypertable --> caggs
+  caggs --> pwa
+  hypertable -.->|security_barrier view trainer_readings| r_reader
+  r_reader --> trainer
+
+  classDef core fill:#067A52,stroke:#0B3D2B,color:#FFFFFF
+  classDef leaf fill:#DDF5EA,stroke:#067A52,color:#17261F
+  classDef water fill:#E3F2FB,stroke:#1F6FA0,color:#17261F
+  classDef deep fill:#0B3D2B,stroke:#06281C,color:#FFFFFF
+
+  class api,trainer,pwa water
+  class hypertable,caggs leaf
+  class r_app,r_ingest,r_reader,hc deep
+```
+
 ### Security
 
 - The administrator account (`POSTGRES_USER`) owns the schema and **is never used by the API**.
@@ -204,6 +266,68 @@ El índice redundante `readings_crop_measured` se eliminó. Se conserva el índi
 - **TimescaleDB** para `readings`: la tabla se particiona por tiempo en fragmentos de 1 día (`create_hypertable`) con compresión columnar a las 12 horas y una **política de retención** de 365 días que descarta los fragmentos antiguos. Las consultas de series temporales usan `time_bucket` y los agregados continuos en tiempo real (`readings_1m`, `readings_15m`, `readings_hourly`).
 
 El esquema completo está en [`schema/schema.sql`](schema/schema.sql). Es la única definición del modelo y es idempotente.
+
+#### Diagrama de arquitectura y topología
+
+```mermaid
+flowchart TB
+  subgraph ingest["Telemetry Ingest Layer"]
+    api["SmartPot-API (Go 1.27.3)<br/>Role: smartpot / smartpot_ingest<br/>Batch pgx.CopyFrom every 10ms/100 readings"]
+  end
+
+  subgraph container["SmartPot-DB Container (TimescaleDB 2.17.2-pg17)"]
+    direction TB
+    subgraph hardening["Container Security & Health"]
+      hc["TCP Healthcheck 127.0.0.1:5432<br/>--start-period=20s --interval=15s<br/>Multi-stage scratch / Non-root postgres"]
+    end
+
+    subgraph hypertable["readings Hypertable (Time-Series Partitioning)"]
+      direction TB
+      raw["Hot Chunks (Uncompressed)<br/>1-Day Time Partitions · Segmented by crop_id"]
+      comp["Compressed Chunks (Columnar)<br/>Compression Policy: age > 12 Hours<br/>ORDER BY measured_at DESC"]
+      ret["Data Retention Policy<br/>Drop chunks older than 365 Days"]
+      raw -->|after 12h| comp
+      comp -->|after 365d| ret
+    end
+
+    subgraph caggs["Real-Time Continuous Aggregates (CAGGs)"]
+      direction TB
+      cagg1m["readings_1m (1-Minute Buckets)<br/>reading_count + 7 sensor metrics"]
+      cagg15m["readings_15m (15-Minute Buckets)<br/>Interpolated LTTB Time Series"]
+      cagg1h["readings_hourly (Hourly Buckets)<br/>Historical Agronomic Trends"]
+    end
+
+    subgraph roles["Least-Privilege Database Roles"]
+      direction LR
+      r_app["smartpot<br/>DML on all public tables<br/>No DDL privileges"]
+      r_ingest["smartpot_ingest<br/>SELECT & INSERT only<br/>on readings hypertable"]
+      r_reader["smartpot_reader<br/>SELECT on readings & trainer_readings view<br/>Column-level crops(id, type, species)"]
+    end
+  end
+
+  subgraph consumers["Analytics & ML Consumers"]
+    direction LR
+    pwa["SmartPot-Web (SolidJS)<br/>Queries CAGGs via API"]
+    trainer["SmartPot-Trainer (Python)<br/>ADBC Driver via smartpot_reader"]
+  end
+
+  api -->|pgx pool| r_app
+  api -->|optional minimal ingest| r_ingest
+  r_app --> hypertable
+  hypertable --> caggs
+  caggs --> pwa
+  hypertable -.->|security_barrier view trainer_readings| r_reader
+  r_reader --> trainer
+
+  classDef core fill:#067A52,stroke:#0B3D2B,color:#FFFFFF
+  classDef leaf fill:#DDF5EA,stroke:#067A52,color:#17261F
+  classDef water fill:#E3F2FB,stroke:#1F6FA0,color:#17261F
+  classDef deep fill:#0B3D2B,stroke:#06281C,color:#FFFFFF
+
+  class api,trainer,pwa water
+  class hypertable,caggs leaf
+  class r_app,r_ingest,r_reader,hc deep
+```
 
 ### Seguridad
 

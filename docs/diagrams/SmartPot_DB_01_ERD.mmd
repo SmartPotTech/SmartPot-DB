@@ -1,0 +1,128 @@
+%%{init: {"theme": "base", "fontFamily": "Segoe UI, Arial, sans-serif", "themeVariables": {"fontFamily": "Segoe UI, Arial, sans-serif", "fontSize": "14px", "primaryColor": "#DDF5EA", "primaryTextColor": "#17261F", "primaryBorderColor": "#067A52", "secondaryColor": "#E3F2FB", "secondaryTextColor": "#17261F", "secondaryBorderColor": "#1F6FA0", "tertiaryColor": "#F2F7F4", "tertiaryTextColor": "#17261F", "tertiaryBorderColor": "#D5E3DC", "lineColor": "#5B6B63", "textColor": "#17261F", "mainBkg": "#DDF5EA", "nodeBorder": "#067A52", "clusterBkg": "#F7FAF8", "clusterBorder": "#D5E3DC", "edgeLabelBackground": "#FFFFFF"}}}%%
+erDiagram
+  users ||--o{ crops : "owns"
+  users ||--o{ password_reset_tokens : "requests"
+  users ||--o{ access_tokens : "provisions"
+  users ||--o{ notifications : "receives"
+  users ||--o{ channel_links : "configures"
+
+  crops ||--o{ virtual_devices : "simulates"
+  crops ||--o{ actuators : "controls"
+  crops ||--o{ commands : "executes"
+  crops ||--o{ readings : "measures"
+  crops ||--o{ crop_channels : "subscribes"
+
+  channel_links ||--o{ crop_channels : "links"
+  actuators ||--o{ commands : "targets"
+
+  users {
+    char24 id PK "Hex ObjectId"
+    varchar name "User first name"
+    varchar last_name "User last name"
+    varchar email UK "Unique email address"
+    varchar password_hash "BCrypt cost 12"
+    varchar role "USER or ADMIN"
+    timestamptz created_at "Creation timestamp"
+    timestamptz updated_at "Update timestamp"
+  }
+
+  password_reset_tokens {
+    char24 id PK "Hex ObjectId"
+    char24 user_id FK "References users.id"
+    varchar token_hash UK "HMAC-SHA256 hash"
+    timestamptz expires_at "Expiration timestamp"
+    timestamptz used_at "Consumed timestamp"
+    timestamptz created_at "Creation timestamp"
+  }
+
+  access_tokens {
+    char24 id PK "Hex ObjectId"
+    char24 user_id FK "References users.id"
+    varchar name "Human-readable label"
+    varchar token_hash UK "SHA-256 token hash"
+    varchar token_prefix "spt_ prefix for lookup"
+    timestamptz last_used_at "Audit timestamp"
+    timestamptz expires_at "Expiration timestamp"
+    timestamptz created_at "Creation timestamp"
+  }
+
+  crops {
+    char24 id PK "Hex ObjectId"
+    char24 user_id FK "References users.id (RLS tenant)"
+    varchar name "Crop name"
+    varchar type "REAL or VIRTUAL"
+    varchar species "Biological species identifier"
+    varchar pot_shape "Visual container form"
+    varchar location "Geographic coordinates"
+    timestamptz created_at "Creation timestamp"
+    timestamptz updated_at "Update timestamp"
+  }
+
+  virtual_devices {
+    char24 id PK "Hex ObjectId"
+    char24 crop_id FK "References crops.id"
+    varchar state "RUNNING or PAUSED"
+    varchar environment_mode "AUTO, MANUAL, or WEATHER"
+    numeric speed_factor "Simulation acceleration"
+    varchar weather_location "Open-Meteo query target"
+  }
+
+  actuators {
+    char24 id PK "Hex ObjectId"
+    char24 crop_id FK "References crops.id"
+    varchar type "WATER_PUMP, UV_LIGHT, FAN, HUMIDIFIER, etc."
+    integer pin "ESP32 GPIO pin number"
+    boolean is_active "Current operational state"
+    timestamptz updated_at "State transition timestamp"
+  }
+
+  commands {
+    char24 id PK "Hex ObjectId"
+    char24 crop_id FK "References crops.id"
+    char24 actuator_id FK "References actuators.id"
+    varchar action "ON or OFF"
+    integer duration_seconds "Operational duration"
+    varchar status "PENDING, SENT, EXECUTED, or FAILED"
+    timestamptz created_at "Command issuance timestamp"
+    timestamptz executed_at "Device ACK timestamp"
+  }
+
+  readings {
+    char24 crop_id PK,FK "References crops.id"
+    timestamptz measured_at PK "TimescaleDB time dimension"
+    numeric temperature "Sensor Celsius (DHT22/BME280)"
+    numeric humidity "Relative humidity percentage"
+    numeric brightness "Ambient lux (BH1750/Photocell)"
+    numeric ph "Nutrient solution pH (0-14)"
+    numeric tds "Total dissolved solids (ppm)"
+    numeric atmosphere "Barometric pressure hPa"
+    numeric soil_moisture "Soil substrate moisture percentage"
+  }
+
+  notifications {
+    char24 id PK "Hex ObjectId"
+    char24 user_id FK "References users.id"
+    char24 crop_id FK "References crops.id (NULL on delete)"
+    varchar type "ALERT, DIGEST, SYSTEM"
+    varchar title "Brief alert header"
+    text message "Descriptive alert body"
+    boolean is_read "Read acknowledgment state"
+    timestamptz created_at "Issuance timestamp"
+  }
+
+  channel_links {
+    char24 id PK "Hex ObjectId"
+    char24 user_id FK "References users.id"
+    varchar channel "TELEGRAM, DISCORD, WEBHOOK"
+    varchar target_id "Destination chat ID or URL"
+    boolean is_active "Routing toggle"
+    timestamptz created_at "Creation timestamp"
+  }
+
+  crop_channels {
+    char24 id PK "Hex ObjectId"
+    char24 crop_id FK "References crops.id"
+    char24 channel_link_id FK "References channel_links.id"
+    text_array events "Subscribed alert categories"
+    timestamptz created_at "Creation timestamp"
+  }
