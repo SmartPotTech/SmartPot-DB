@@ -359,8 +359,25 @@ expect_rejected "application role cannot create tables" app \
     "CREATE TABLE ci_denied (id int)" "permission denied"
 
 # El cultivo y el actuador son la base de casi todas las pruebas de restricciones y permisos.
-app "INSERT INTO crops (id,owner_id,name,type,kind,form,automation_enabled,created_at) VALUES ('$FIX_CROP','$FIX_USER','CI Validation Crop','LETTUCE','REAL','NFT',false,now())" >/dev/null
+# Aislamiento multi-tenant con RLS fail-closed: sin contexto de tenant la consulta falla cerrada (0 filas)
+check "fail-closed: querying crops without tenant context returns 0 rows" \
+    "$(sql_value app "SELECT count(*) FROM crops")" "0"
+
+expect_rejected "fail-closed: inserting crop without tenant context is rejected by RLS" app \
+    "INSERT INTO crops (id,owner_id,name,type,kind,form,automation_enabled,created_at) VALUES ('$FIX_CROP','$FIX_USER','CI Validation Crop','LETTUCE','REAL','NFT',false,now())" "violates row-level security policy"
+
+# Con contexto de tenant activo para el dueño, la inserción y lectura son autorizadas:
+app "SELECT set_tenant_context('$FIX_USER'); INSERT INTO crops (id,owner_id,name,type,kind,form,automation_enabled,created_at) VALUES ('$FIX_CROP','$FIX_USER','CI Validation Crop','LETTUCE','REAL','NFT',false,now())" >/dev/null
 app "INSERT INTO actuators (id,crop_id,type,active,created_at) VALUES ('$FIX_ACT','$FIX_CROP','FAN',false,now())" >/dev/null
+
+check "tenant context isolates crops for matching owner" \
+    "$(sql_value app "SELECT set_tenant_context('$FIX_USER'); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "1"
+
+check "tenant context isolates crops for non-matching owner" \
+    "$(sql_value app "SELECT set_tenant_context('0123456789abcdef01234599'); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
+
+check "clearing tenant context resets to fail-closed" \
+    "$(sql_value app "SELECT set_tenant_context(''); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
 
 # ------------------------------------------------------------------------------
 # Un solo comando en vuelo por actuador y reconciliación previa de migrate.sh
@@ -438,7 +455,7 @@ expect_rejected "non-hex user id is rejected by the format check" app \
     "INSERT INTO users (id,email,password_hash,role,created_at) VALUES ('$BAD_USER','ci-bad-id@example.com',repeat('x',60),'USER',now())" "users_id_format_check"
 
 expect_rejected "crop owner id must be a 24 character hex ObjectId" app \
-    "INSERT INTO crops (id,owner_id,name,type,automation_enabled,created_at) VALUES ('$CROP_BAD','$BAD_OWNER','Bad Owner Crop','LETTUCE',false,now())" "crops_owner_id_format_check"
+    "SELECT set_tenant_context('$BAD_OWNER'); INSERT INTO crops (id,owner_id,name,type,automation_enabled,created_at) VALUES ('$CROP_BAD','$BAD_OWNER','Bad Owner Crop','LETTUCE',false,now())" "crops_owner_id_format_check"
 
 expect_rejected "notification with a non-existent crop is rejected" app \
     "INSERT INTO notifications (id,user_id,crop_id,type,title,message,read,created_at) VALUES ('$NOTIF_BAD','$FIX_USER','$MISSING_CROP','INFO','x','y',false,now())" "notifications_crop_id_fkey"
@@ -522,6 +539,8 @@ check "reader role selects readings" \
     "$(sql_value reader "SELECT count(*) >= 0 FROM readings")" "t"
 check "reader role selects the trainer view" \
     "$(sql_value reader "SELECT count(*) >= 0 FROM trainer_readings")" "t"
+check "reader role selects crops anonymously despite RLS" \
+    "$(sql_value reader "SELECT count(*) >= 0 FROM crops")" "t"
 expect_rejected "reader role cannot select crops.owner_id" reader \
     "SELECT owner_id FROM crops" "permission denied"
 expect_rejected "reader role cannot select crops.device" reader \

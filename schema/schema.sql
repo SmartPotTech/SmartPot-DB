@@ -48,21 +48,42 @@ CREATE INDEX IF NOT EXISTS crops_owner_created ON crops (owner_id, created_at DE
 -- Para sincronizar en el broker las cuentas de los cultivos con clave de dispositivo al reconectar.
 CREATE INDEX IF NOT EXISTS crops_with_device_key ON crops ((device ->> 'keyCiphertext')) WHERE device ->> 'keyCiphertext' IS NOT NULL;
 
--- Aislamiento multi-tenant con Row-Level Security (RLS). La API es la frontera real; esta política refuerza el
--- aislamiento cuando define app.current_tenant_id en la conexión.
+-- Función de contexto seguro para fijar o limpiar el tenant actual de forma parametrizada.
+CREATE OR REPLACE FUNCTION set_tenant_context(tenant_id TEXT) RETURNS void AS $$
+BEGIN
+    IF tenant_id IS NULL OR tenant_id = '' THEN
+        PERFORM set_config('app.current_tenant_id', '', false);
+    ELSE
+        PERFORM set_config('app.current_tenant_id', tenant_id, false);
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Aislamiento multi-tenant con Row-Level Security (RLS). La API es la frontera real y verifica estrictamente el owner_id;
+-- esta política refuerza el aislamiento a nivel de motor en modo fail-closed: si app.current_tenant_id no está definido
+-- o está vacío, no se expone ni permite escribir ninguna fila, salvo que se establezca app.bypass_rls = 'on' o el rol
+-- sea smartpot_reader (para entrenamiento del modelo sobre vistas anonimizadas).
 ALTER TABLE crops ENABLE ROW LEVEL SECURITY;
 DO $crops_rls$
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'crops' AND policyname = 'crops_tenant_isolation'
-    ) THEN
-        CREATE POLICY crops_tenant_isolation ON crops
-            FOR ALL
-            USING (NULLIF(current_setting('app.current_tenant_id', true), '') IS NULL
-                OR owner_id = current_setting('app.current_tenant_id', true))
-            WITH CHECK (NULLIF(current_setting('app.current_tenant_id', true), '') IS NULL
-                OR owner_id = current_setting('app.current_tenant_id', true));
-    END IF;
+    DROP POLICY IF EXISTS crops_tenant_isolation ON crops;
+    CREATE POLICY crops_tenant_isolation ON crops
+        FOR ALL
+        USING (
+            current_setting('app.bypass_rls', true) = 'on'
+            OR current_user = 'smartpot_reader'
+            OR (
+                NULLIF(current_setting('app.current_tenant_id', true), '') IS NOT NULL
+                AND owner_id = current_setting('app.current_tenant_id', true)
+            )
+        )
+        WITH CHECK (
+            current_setting('app.bypass_rls', true) = 'on'
+            OR (
+                NULLIF(current_setting('app.current_tenant_id', true), '') IS NOT NULL
+                AND owner_id = current_setting('app.current_tenant_id', true)
+            )
+        );
 END
 $crops_rls$;
 
@@ -595,6 +616,7 @@ BEGIN
     IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'smartpot') THEN
         EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO smartpot';
         EXECUTE 'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO smartpot';
+        EXECUTE 'GRANT EXECUTE ON FUNCTION set_tenant_context(TEXT) TO smartpot';
         EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO smartpot';
         EXECUTE 'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO smartpot';
     END IF;
