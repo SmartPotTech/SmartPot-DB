@@ -380,13 +380,13 @@ app "SELECT set_tenant_context('$FIX_USER'); INSERT INTO crops (id,owner_id,name
 app "INSERT INTO actuators (id,crop_id,type,active,created_at) VALUES ('$FIX_ACT','$FIX_CROP','FAN',false,now())" >/dev/null
 
 check "tenant context isolates crops for matching owner" \
-    "$(sql_value app "SELECT set_tenant_context('$FIX_USER'); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "1"
+    "$(sql_value app "DO 'BEGIN PERFORM set_tenant_context(''$FIX_USER''); END'; SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "1"
 
 check "tenant context isolates crops for non-matching owner" \
-    "$(sql_value app "SELECT set_tenant_context('0123456789abcdef01234599'); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
+    "$(sql_value app "DO 'BEGIN PERFORM set_tenant_context(''0123456789abcdef01234599''); END'; SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
 
 check "clearing tenant context resets to fail-closed" \
-    "$(sql_value app "SELECT set_tenant_context(''); SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
+    "$(sql_value app "DO 'BEGIN PERFORM set_tenant_context(''''); END'; SELECT count(*) FROM crops WHERE id='$FIX_CROP'")" "0"
 
 # ------------------------------------------------------------------------------
 # Un solo comando en vuelo por actuador y reconciliación previa de migrate.sh
