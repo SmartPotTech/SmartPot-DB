@@ -253,6 +253,12 @@ check "base retention policy keeps 365 days" \
 check "obsolete readings_crop_measured index is absent" \
     "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='readings_crop_measured'")" "0"
 
+check "redundant readings_measured_at_idx index is absent" \
+    "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='readings_measured_at_idx'")" "0"
+
+check "readings_measured_at_brin index exists" \
+    "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='readings_measured_at_brin'")" "1"
+
 check "covering readings_crop_measured_covering index exists" \
     "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='readings_crop_measured_covering'")" "1"
 

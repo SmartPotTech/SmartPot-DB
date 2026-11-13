@@ -104,17 +104,18 @@ CREATE TABLE IF NOT EXISTS readings
     soil_moisture DOUBLE PRECISION
 );
 -- Hipertabla con fragmentos (chunks) de 1 día; la columna de partición es measured_at.
--- Argumentos posicionales a propósito (create_default_indexes, if_not_exists): evitan el operador `=>`,
--- que algunos formateadores de SQL parten en `= >` y rompen el arranque de la base.
-SELECT create_hypertable('readings', by_range('measured_at', INTERVAL '1 day'), TRUE, TRUE);
+-- Argumentos posicionales a propósito (create_default_indexes = FALSE, if_not_exists = TRUE): evitan el
+-- índice B-tree por defecto (redundantemente cubierto por el índice BRIN + cubriente) y el operador `=>`.
+SELECT create_hypertable('readings', by_range('measured_at', INTERVAL '1 day'), FALSE, TRUE);
 SELECT set_chunk_time_interval('readings', INTERVAL '1 day');
 
 -- Índice cubriente único para las series por cultivo. El índice antiguo (crop_id, measured_at DESC) era un prefijo
--- exacto de este y solo ocupaba espacio y frenaba la compresión; se elimina de forma idempotente.
+-- exacto de este y el B-tree por defecto (measured_at) duplicaba al BRIN; ambos se eliminan de forma idempotente.
 CREATE INDEX IF NOT EXISTS readings_crop_measured_covering
     ON readings (crop_id, measured_at DESC)
     INCLUDE (temperature, humidity, brightness, ph, tds, atmosphere, soil_moisture);
 DROP INDEX IF EXISTS readings_crop_measured;
+DROP INDEX IF EXISTS readings_measured_at_idx;
 CREATE INDEX IF NOT EXISTS readings_measured_at_brin ON readings USING BRIN (measured_at);
 
 -- Salidas de cada cultivo (bomba, luz UV, ventilador, humidificador y dosificadores) y su estado confirmado.
