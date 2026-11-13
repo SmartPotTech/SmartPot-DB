@@ -256,6 +256,9 @@ check "obsolete readings_crop_measured index is absent" \
 check "covering readings_crop_measured_covering index exists" \
     "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='readings_crop_measured_covering'")" "1"
 
+check "partial unread notifications_user_unread index exists" \
+    "$(sql_value root "SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='notifications_user_unread'")" "1"
+
 check "all twelve foreign keys exist" "$(sql_value root "$FKS_SQL")" "12"
 
 check "trainer_readings is a security_barrier view" \

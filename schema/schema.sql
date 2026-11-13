@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS notifications
     created_at TIMESTAMPTZ NOT NULL
 );
 CREATE INDEX IF NOT EXISTS notifications_user_created ON notifications (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS notifications_user_unread ON notifications (user_id, created_at DESC) WHERE read = false;
 CREATE INDEX IF NOT EXISTS notifications_crop_created ON notifications (crop_id, created_at) WHERE crop_id IS NOT NULL;
 
 -- Tokens de recuperación de contraseña: solo el SHA-256 del token. La API los purga al vencer.
