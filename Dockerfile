@@ -1,4 +1,4 @@
-FROM timescale/timescaledb:2.17.2-pg17
+FROM timescale/timescaledb:2.32.0-pg17
 
 LABEL org.opencontainers.image.title="SmartPot DB (PostgreSQL + TimescaleDB)" \
       org.opencontainers.image.description="PostgreSQL with TimescaleDB for SmartPot: relational schema, telemetry hypertable, and optional demo seed data" \
